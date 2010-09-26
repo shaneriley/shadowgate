@@ -1,0 +1,124 @@
+@import url("whitespace-reset.css");
+
+body {
+  font: normal 13px Arial, Helvetica, sans-serif;
+  color: #ffffff; }
+#game {
+  position: relative;
+  width: 676px;
+  height: 633px;
+  background-color: #000000; }
+.credit { background: #000000 url("../images/credit.gif") 0 0 no-repeat; }
+.title {
+  cursor: pointer;
+  background: #000000 url("../images/title.gif") 0 0 no-repeat; }
+#loading {
+  position: absolute;
+  left: 50%;
+  top: 200px;
+  margin: 0 0 0 -100px;
+  z-index: 1;
+  width: 200px;
+  text-align: center; }
+  #loading #progress {
+    display: block;
+    position: relative;
+    height: 20px;
+    margin: 3px 0 0 0;
+    border: 2px solid #cccccc;
+    border-radius: 3px;
+    background: #ffffff; }
+  #loading span {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 20px;
+    line-height: 20px; }
+  #loading .text {
+    z-index: 2;
+    padding: 0 5px;
+    color: #000000; }
+  #loading .complete {
+    z-index: 1;
+    background: #5463fa; }
+#interface {
+  display: none;
+  position: absolute;
+  left: 45px;
+  bottom: 24px;
+  z-index: 1;
+  width: 586px;
+  height: 205px;
+  background: transparent url("../images/bg_interface.gif") 0 0 no-repeat; }
+#inventory {
+  display: none;
+  position: absolute;
+  right: 24px;
+  top: 45px;
+  z-index: 1;
+  width: 290px;
+  height: 353px;
+  background: transparent url("../images/bg_inventory.jpg") 0 0 no-repeat; }
+#view-frame {
+  display: none;
+  position: absolute;
+  left: 21px;
+  top: 63px;
+  z-index: 1;
+  width: 296px;
+  height: 296px;
+  padding: 21px;
+  background: transparent url("../images/bg_view-frame.gif") 0 0 no-repeat; }
+#stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-position: 0 0;
+  background-repeat: no-repeat; }
+  #stage div {
+    position: absolute;
+    z-index: 100; }
+a#move, a.col1, a.col2, a.col3 {
+  position: absolute;
+  z-index: 2;
+  width: 105px;
+  height: 21px; }
+  a#move span, a.col1 span, a.col2 span, a.col3 span {
+    display: block;
+    width: 21px;
+    height: 21px; }
+a#move {
+  left: 40px;
+  top: 18px; }
+a.active span { background: #000000; }
+a.col1 { left: 209px; }
+a.col2 { left: 335px; }
+a.col3 { left: 462px; }
+a#look, a#take, a#card_up { top: 39px; }
+a#open, a#close, a#card_down { top: 81px; }
+a#use, a#hit, a#self { top: 123px; }
+a#leave, a#speak, a#save { top: 166px; }
+a#card_up, a#card_down { width: 21px; }
+
+#stage[class^="s1"] { background-image: url("../images/1.gif"); }
+#stage.s1_alt { background-position: 0 100%; }
+#stage[class^="s1"] .skull {
+  left: 130px;
+  top: 11px;
+  width: 37px;
+  height: 38px;
+  background: transparent url("../images/1_skull.gif") 0 0 no-repeat; }
+#stage[class^="s1"] .key1 {
+  left: 135px;
+  top: 21px;
+  width: 21px;
+  height: 16px;
+  z-index: 2;
+  background: transparent url("../images/1_key.gif") 0 0 no-repeat; }
+#stage[class^="s1"] .door {
+  left: 106px;
+  top: 45px;
+  width: 84px;
+  height: 209px; }
+#stage[class^="s1"] .open { background: transparent url("../images/1_open-door.gif") 0 0 no-repeat; }
