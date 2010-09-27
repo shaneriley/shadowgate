@@ -9,11 +9,16 @@ $(function() {
     "1_open-door.gif",
     "1_skull.gif",
     "1.gif",
+    "2_door1.gif",
+    "2_door2.gif",
+    "2_rug.gif",
+    "2_torch.gif",
+    "2.gif",
     "bg_interface.gif",
     "bg_inventory.jpg",
     "bg_view-frame.gif",
     "icon_pen.gif",
-    "text_goods.gif",
+    "torch_large.gif",
     "title.gif"
   ];
   var remaining_images = images.length;
@@ -26,30 +31,22 @@ $(function() {
           $e.unbind(e).animate({
             top: parseInt($e.css("top"), 10) - 32
           }, 1500);
-          return false;
         }
       },
       key1: {
         click: function() {
           inventory.push("key 1");
           $(this).remove();
-          return false;
         }
       },
-      door: {
-        click: function() {
-          var $e = $(this);
-          if ($e.hasClass("open")) {
-            // $stage.removeClass().addClass("s2");
-            // stageSetup();
-            console.log("stage 2");
-          }
-          else {
-            $e.addClass("open");
-          }
-          return false;
-        }
-      }
+      door: { click: function() { door($(this), "s2"); } }
+    },
+    "2": {
+      torch1: { click: function() { torch($(this)); } },
+      torch2: { click: function() { torch($(this)); } },
+      door1: { click: function() { door($(this), "s3"); } },
+      door2: { click: function() { door($(this), "s4"); } },
+      rug: { click: function() { $(this).remove(); } }
     }
   };
 
@@ -92,6 +89,23 @@ $(function() {
       $("<div />").attr({
         "class": v
       }).bind("click", s[v].click).appendTo($stage);
+    }
+  }
+
+  function torch($e) {
+    if ($.inArray("torch", inventory) < 0) {
+      inventory.push("torch");
+    }
+    $e.remove();
+  }
+
+  function door($e, destination) {
+    if ($e.hasClass("open")) {
+      $stage.removeClass().addClass(destination);
+      stageSetup();
+    }
+    else {
+      $e.addClass("open");
     }
   }
 

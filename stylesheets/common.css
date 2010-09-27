@@ -60,6 +60,14 @@ body {
   width: 290px;
   height: 353px;
   background: transparent url("../images/bg_inventory.jpg") 0 0 no-repeat; }
+  #inventory .torch {
+    position: absolute;
+    top: 8px;
+    z-index: 1;
+    width: 26px;
+    height: 42px; }
+    #inventory .torch.large { background: transparent url("../images/torch_large.gif") 0 0 no-repeat; }
+    #inventory .torch.left { left: 16px; }
 #view-frame {
   display: none;
   position: absolute;
@@ -122,3 +130,32 @@ a#card_up, a#card_down { width: 21px; }
   width: 84px;
   height: 209px; }
 #stage[class^="s1"] .open { background: transparent url("../images/1_open-door.gif") 0 0 no-repeat; }
+
+#stage.s2 { background-image: url("../images/2.gif"); }
+.s2 .torch1,
+.s2 .torch2 {
+  top: 53px;
+  width: 16px;
+  height: 74px;
+  background: transparent url("../images/2_torch.gif") 0 0 no-repeat; }
+.s2 .torch1 { left: 3px; }
+.s2 .torch2 { right: 3px; }
+.s2 .door1 {
+  left: 124px;
+  top: 151px;
+  width: 48px;
+  height: 100px;
+  background: transparent url("../images/2_door1.gif") 0 0 no-repeat; }
+.s2 .door2 {
+  right: 73px;
+  top: 156px;
+  width: 27px;
+  height: 120px;
+  background: transparent url("../images/2_door2.gif") 0 0 no-repeat; }
+.s2 .open { background: transparent; }
+.s2 .rug {
+  left: 107px;
+  bottom: 0;
+  width: 84px;
+  height: 37px;
+  background: transparent url("../images/2_rug.gif") 0 0 no-repeat; }
