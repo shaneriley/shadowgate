@@ -14,6 +14,7 @@ $(function() {
     "2_rug.gif",
     "2_torch.gif",
     "2.gif",
+    "bg_dialog",
     "bg_interface.gif",
     "bg_inventory.jpg",
     "bg_view-frame.gif",
