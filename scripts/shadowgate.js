@@ -14,7 +14,7 @@ $(function() {
     "2_rug.gif",
     "2_torch.gif",
     "2.gif",
-    "bg_dialog",
+    "bg_dialog.gif",
     "bg_interface.gif",
     "bg_inventory.jpg",
     "bg_view-frame.gif",
@@ -23,10 +23,11 @@ $(function() {
     "title.gif"
   ];
   var remaining_images = images.length;
+  var action = "default";
   var stages = {
     "1": {
       skull: {
-        click: function(e) {
+        open: function(e) {
           var $e = $(this);
           $stage.removeClass().addClass("s1_alt");
           $e.unbind(e).animate({
@@ -35,25 +36,36 @@ $(function() {
         }
       },
       key1: {
-        click: function() {
+        take: function() {
           inventory.push("key 1");
           $(this).remove();
         }
       },
-      door: { click: function() { door($(this), "s2"); } }
+      door: {
+        "default": function() { door($(this), "s2"); },
+        open: function() { $(this).trigger("default"); }
+      }
     },
     "2": {
-      torch1: { click: function() { torch($(this)); } },
-      torch2: { click: function() { torch($(this)); } },
-      door1: { click: function() { door($(this), "s3"); } },
-      door2: { click: function() { door($(this), "s4"); } },
+      torch1: { take: function() { torch($(this)); } },
+      torch2: { take: function() { torch($(this)); } },
+      door1: {
+        "default": function() { door($(this), "s3"); },
+        open: function() { $(this).trigger("default"); }
+      },
+      door2: {
+        "default": function() { door($(this), "s4"); },
+        open: function() { $(this).trigger("default"); }
+      },
       rug: { click: function() { $(this).remove(); } }
     }
   };
 
   $interface.find("a").click(function() {
-    $interface.find("a").not($(this)).removeClass("active");
-    $(this).toggleClass("active");
+    var $e = $(this);
+    $interface.find("a").not($e).removeClass("active");
+    $e.toggleClass("active");
+    action = ($e.hasClass("active")) ? $e.attr("id") : "default";
     return false;
   }).each(function() {
     $("<span />").appendTo($(this));
@@ -87,9 +99,14 @@ $(function() {
     var s = stages[$stage[0].className.match(/\d/g).join(",")];
     $stage.find("*").remove();
     for (var v in s) {
-      $("<div />").attr({
+      var $div = $("<div />").attr({
         "class": v
-      }).bind("click", s[v].click).appendTo($stage);
+      }).bind("click", function() {
+        $(this).trigger(action);
+      }).appendTo($stage);
+      for (var e in s[v]) {
+        $div.bind(e, s[v][e]);
+      }
     }
   }
 
