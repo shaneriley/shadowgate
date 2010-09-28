@@ -27,8 +27,17 @@ $(function() {
   var stages = {
     "1": {
       skull: {
+        "default": function() { $(this).trigger("look"); },
+        look: function() {
+          dialog([
+            "It's the skull of some",
+            "creature. Its meaning",
+            "seems quite clear: death",
+            "lurks inside."]);
+        },
         open: function(e) {
           var $e = $(this);
+          dialog(["As if by magic, the", "skull rises."]);
           $stage.removeClass().addClass("s1_alt");
           $e.unbind(e).animate({
             top: parseInt($e.css("top"), 10) - 32
@@ -125,6 +134,15 @@ $(function() {
     else {
       $e.addClass("open");
     }
+  }
+
+  function dialog(txt) {
+    if (typeof txt === "object") {
+      for (var i in txt) {
+        console.log(txt[i]);
+      }
+    }
+    else { console.log(txt); }
   }
 
   function random(max, min) {
