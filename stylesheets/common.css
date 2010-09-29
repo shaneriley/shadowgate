@@ -108,6 +108,57 @@ a#open, a#close, a#card_down { top: 81px; }
 a#use, a#hit, a#self { top: 123px; }
 a#leave, a#speak, a#save { top: 166px; }
 a#card_up, a#card_down { width: 21px; }
+#dialog {
+  display: none;
+  position: absolute;
+  left: 45px;
+  bottom: 24px;
+  z-index: 2;
+  width: 544px;
+  height: 205px;
+  border: 1px solid #f7d6a5;
+  border-width: 0 21px;
+  background: #f7d6a5 url("../images/bg_dialog.gif") 0 5px repeat-x; }
+  #dialog p {
+    clear: both;
+    padding: 24px 0 0 0; }
+  #dialog span {
+    display: none;
+    float: left;
+    width: 18px;
+    height: 18px;
+    margin: 0 2px 0 0;
+    background: transparent url("../images/font.gif") 0 0 no-repeat; }
+  #dialog .b { background-position: -18px 0; }
+  #dialog .c { background-position: -36px 0; }
+  #dialog .d { background-position: -54px 0; }
+  #dialog .e { background-position: -72px 0; }
+  #dialog .f { background-position: -90px 0; }
+  #dialog .g { background-position: -108px 0; }
+  #dialog .h { background-position: -126px 0; }
+  #dialog .i { background-position: -144px 0; }
+  #dialog .j { background-position: -162px 0; }
+  #dialog .k { background-position: -180px 0; }
+  #dialog .l { background-position: -198px 0; }
+  #dialog .m { background-position: -216px 0; }
+  #dialog .n { background-position: -234px 0; }
+  #dialog .o { background-position: -252px 0; }
+  #dialog .p { background-position: -270px 0; }
+  #dialog .q { background-position: -288px 0; }
+  #dialog .r { background-position: -306px 0; }
+  #dialog .s { background-position: -324px 0; }
+  #dialog .t { background-position: -342px 0; }
+  #dialog .u { background-position: -360px 0; }
+  #dialog .v { background-position: -378px 0; }
+  #dialog .w { background-position: -396px 0; }
+  #dialog .x { background-position: -414px 0; }
+  #dialog .y { background-position: -432px 0; }
+  #dialog .z { background-position: -450px 0; }
+  #dialog .period { background-position: -468px 0; }
+  #dialog .colon { background-position: -486px 0; }
+  #dialog .exclamation { background-position: -504px 0; }
+  #dialog .quote { background-position: -522px 0; }
+  #dialog .space { background: transparent; }
 
 #stage[class^="s1"] { background-image: url("../images/1.gif"); }
 #stage.s1_alt { background-position: 0 100%; }

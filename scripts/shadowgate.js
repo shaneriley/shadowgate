@@ -3,6 +3,7 @@ $(function() {
       $interface = $("#interface"),
       $inventory = $("#inventory"),
       $stage = $("#stage"),
+      $dialog = $("#dialog"),
       inventory = [];
   var images = [
     "1_key.gif",
@@ -137,12 +138,48 @@ $(function() {
   }
 
   function dialog(txt) {
+    var convertText = function(str) {
+      var chars = str.toLowerCase().split(""),
+          $p = $("<p />");
+      for (var l in chars) {
+        var code = chars[l].charCodeAt(0),
+            klass;
+        if (code < 123 && code > 96) { klass = chars[l]; }
+        else if (code === 222) { klass = "quote"; }
+        else if (code === 46) { klass = "period"; }
+        else if (code === 58) { klass = "colon"; }
+        else if (code === 49) { klass = "exclamation"; }
+        else if (code === 32) { klass = "space"; }
+        else { klass = "space"; }
+        $("<span />").addClass(klass).appendTo($p);
+      }
+      $p.appendTo($dialog);
+    };
     if (typeof txt === "object") {
       for (var i in txt) {
-        console.log(txt[i]);
+        convertText(txt[i]);
       }
     }
-    else { console.log(txt); }
+    else {
+      convertText(txt);
+    }
+    $dialog.show().bind("click.complete_text", function(e) {
+      clearTimeout(runner);
+      $(this).find("span").show().end().unbind(e).bind("click.hide_dialog", function(e) {
+        $(this).html("").hide().unbind(e);
+      });
+    });
+    var s = 0,
+        $spans = $dialog.find("span"),
+        runner;
+    var showSpan = function() {
+      $spans.eq(s).show();
+      if (s !== $spans.length - 1) {
+        s++;
+        runner = setTimeout(function() { showSpan(); }, 50);
+      }
+    };
+    showSpan();
   }
 
   function random(max, min) {
