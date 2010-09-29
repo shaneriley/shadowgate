@@ -46,6 +46,8 @@ $(function() {
         }
       },
       key1: {
+        "default": function() { $(this).trigger("look"); },
+        look: function() { dialog("it's a small iron key."); },
         take: function() {
           inventory.push("key 1");
           $(this).remove();
@@ -53,6 +55,12 @@ $(function() {
       },
       door: {
         "default": function() { door($(this), "s2"); },
+        look: function() {
+          dialog([
+            "It's a heavy wooden door",
+            "with iron hinges."
+          ]);
+        },
         open: function() { $(this).trigger("default"); }
       }
     },
