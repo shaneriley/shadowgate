@@ -4,6 +4,7 @@ $(function() {
       $inventory = $("#inventory"),
       $stage = $("#stage"),
       $dialog = $("#dialog"),
+      $dialog_layer = $("#dialog_layer"),
       inventory = [];
   var images = [
     "1_key.gif",
@@ -171,11 +172,25 @@ $(function() {
     else {
       convertText(txt);
     }
-    $dialog.show().bind("click.complete_text", function(e) {
+    $dialog.show();
+    $dialog_layer.show().bind("click.complete_text", function(e) {
       clearTimeout(runner);
-      $(this).find("span").show().end().unbind(e).bind("click.hide_dialog", function(e) {
-        $(this).html("").hide().unbind(e);
+      var $spans = $dialog.find("span"),
+          hidden = 0;
+      $spans.each(function() {
+        if ($(this).is(":hidden")) { hidden++; }
       });
+      if (hidden) {
+        $dialog.find("span").show();
+        $dialog_layer.unbind(e).bind("click.hide_dialog", function(e) {
+          $dialog.html("").hide()
+          $dialog_layer.hide().unbind(e);
+        });
+      }
+      else {
+        $dialog.html("").hide()
+        $dialog_layer.hide().unbind(e);
+      }
     });
     var s = 0,
         $spans = $dialog.find("span"),

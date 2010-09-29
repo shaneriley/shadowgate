@@ -108,12 +108,20 @@ a#open, a#close, a#card_down { top: 81px; }
 a#use, a#hit, a#self { top: 123px; }
 a#leave, a#speak, a#save { top: 166px; }
 a#card_up, a#card_down { width: 21px; }
+#dialog_layer {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  height: 100%; }
 #dialog {
   display: none;
   position: absolute;
   left: 45px;
   bottom: 24px;
-  z-index: 2;
+  z-index: 101;
   width: 544px;
   height: 205px;
   border: 1px solid #f7d6a5;
