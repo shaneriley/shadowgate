@@ -163,10 +163,20 @@ a#card_up, a#card_down { width: 21px; }
   .letters .y { background-position: -432px 0; }
   .letters .z { background-position: -450px 0; }
   .letters .period { background-position: -468px 0; }
-  .letters .colon { background-position: -486px 0; }
-  .letters .exclamation { background-position: -504px 0; }
-  .letters .quote { background-position: -522px 0; }
+  .letters .apostrophe { background-position: -486px 0; }
+  .letters .colon { background-position: -504px 0; }
+  .letters .exclamation { background-position: -522px 0; }
+  .letters .quote { background-position: -540px 0; }
   .letters .space { background: transparent; }
+  .letters .one { background-position: -558px 0; }
+  .letters .two { background-position: -576px 0; }
+  .letters .three { background-position: -594px 0; }
+  .letters .four { background-position: -612px 0; }
+  .letters .five { background-position: -630px 0; }
+  .letters .six { background-position: -648px 0; }
+  .letters .seven { background-position: -666px 0; }
+  .letters .eight { background-position: -684px 0; }
+  .letters .nine { background-position: -702px 0; }
 
 #stage[class^="s1"] { background-image: url("../images/1.gif"); }
 #stage.s1_alt { background-position: 0 100%; }

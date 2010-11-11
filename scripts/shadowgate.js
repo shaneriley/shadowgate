@@ -37,21 +37,45 @@ $(function() {
             "seems quite clear: death",
             "lurks inside."]);
         },
-        open: function(e) {
+        open: function() {
           var $e = $(this);
-          dialog(["As if by magic, the", "skull rises."]);
-          $stage.removeClass().addClass("s1_alt");
-          $e.unbind(e).animate({
-            top: parseInt($e.css("top"), 10) - 32
-          }, 1500);
+          if ($stage.hasClass("s1")) {
+            dialog(["As if by magic, the", "skull rises."]);
+            $stage.removeClass().addClass("s1_alt");
+            $e.animate({
+              top: parseInt($e.css("top"), 10) - 32
+            }, 1500);
+          }
+          else { dialog("The skull is opened."); }
+        },
+        close: function(e) {
+          var $e = $(this);
+          if ($stage.hasClass("s1_alt")) {
+            $e.animate({
+              top: parseInt($e.css("top"), 10) + 32
+            }, 1500, function() {
+              $stage.removeClass().addClass("s1");
+              dialog("The skull is closed.");
+            });
+          }
+          else { dialog("The skull is closed."); }
         }
       },
       key1: {
         "default": function() { $(this).trigger("look"); },
         look: function() { dialog("it's a small iron key."); },
         take: function() {
-          inventory.push("key 1");
+          inventory.push({
+            id: "key 1",
+            use: function() {
+              dialog(["What do you want to", "use this on?"]);
+              $(this).addClass("active");
+            },
+            look: function() { dialog("it's a small iron key."); }
+          });
           $(this).remove();
+          dialog("The key 1 is in hand.");
+          updateInventory(inventory[inventory.length - 1], true);
         }
       },
       door: {
@@ -62,21 +86,71 @@ $(function() {
             "with iron hinges."
           ]);
         },
-        open: function() { $(this).trigger("default"); }
+        open: function() { $(this).trigger("default"); },
+        move: function() { $(this).trigger("default"); }
       }
     },
     "2": {
-      torch1: { take: function() { torch($(this)); } },
-      torch2: { take: function() { torch($(this)); } },
+      torch1: {
+        "default": function() { $(this).trigger("look"); },
+        look: function() { dialog("It's a torch."); },
+        take: function() { torch($(this)); }
+      },
+      torch2: {
+        "default": function() { $(this).trigger("look"); },
+        look: function() { dialog("It's a torch."); },
+        take: function() { torch($(this)); }
+      },
       door1: {
-        "default": function() { door($(this), "s3"); },
-        open: function() { $(this).trigger("default"); }
+        "default": function() { dialog("The door is locked."); },
+        open: function() {
+          if (stages["2"].door1.unlocked) { door($(this), "s3"); }
+          else {
+            if (action === "use key 1") {
+              door($(this), "s3");
+              stages["2"].door1.unlocked = true;
+            }
+            else { $(this).trigger("default"); }
+          }
+        },
+        use: function() {
+          if ($inventory.find(".active").attr("title") !== "key 1") {
+            dialog(["You seem to be wasting", "your time."]);
+          }
+          else {
+            stages["2"].door1.unlocked = true;
+            $(this).trigger("open");
+          }
+        },
+        look: function() {
+          dialog([
+            "This wooden door is",
+            "reinforced with heavy",
+            "sheets of steel."
+          ]);
+        }
       },
       door2: {
         "default": function() { door($(this), "s4"); },
         open: function() { $(this).trigger("default"); }
       },
-      rug: { click: function() { $(this).remove(); } }
+      rug: {
+        "default": function() { dialog(["It's a beautifully woven", "rug."]); },
+        look: function() { dialog(["It's a beautifully woven", "rug."]); },
+        use: function() {
+          if ($inventory.find(".active").attr("title") === "torch") {
+            dialog(["The rug quickly catches", "on fire and burns away."]);
+            $(this).remove();
+          }
+          else { dialog(["You seem to be wasting", "your time."]); }
+        },
+        take: function() { dialog("You can't take it!"); },
+        open: function() { dialog("It won't open!"); },
+        close: function() { dialog("Nothing happened."); },
+        hit: function() { dialog("Nothing happened."); },
+        leave: function() { dialog("You can't drop it here."); },
+        speak: function() { dialog(["What you expected hasn't", "happened"]); }
+      }
     }
   };
 
@@ -116,7 +190,7 @@ $(function() {
 
   function stageSetup() {
     var s = stages[$stage[0].className.match(/\d/g).join(",")];
-    $stage.find("*").remove();
+    $stage.empty();
     for (var v in s) {
       var $div = $("<div />").attr({
         "class": v
@@ -133,6 +207,7 @@ $(function() {
     if ($.inArray("torch", inventory) < 0) {
       inventory.push("torch");
     }
+    dialog("The torch is in hand.");
     $e.remove();
   }
 
@@ -146,31 +221,37 @@ $(function() {
     }
   }
 
+  function convertText(str, $e) {
+    var chars = str.toLowerCase().split(""),
+        $p = $("<p />"),
+        digits_and_punct = {
+          "222": "quote",
+          "46": "period",
+          "58": "colon",
+          "49": "exclamation",
+          "32": "space",
+          "39": "apostrophe"
+        };
+    for (var l in chars) {
+      var code = chars[l].charCodeAt(0),
+          klass;
+      //console.log(chars[l], code);
+      if (code < 123 && code > 96) { klass = chars[l]; }
+      else if (digits_and_punct.hasOwnProperty(code)) { klass = digits_and_punct[code]; }
+      else { klass = "space"; }
+      $("<span />").addClass(klass).appendTo($p);
+    }
+    $p.appendTo($e);
+  }
+
   function dialog(txt) {
-    var convertText = function(str) {
-      var chars = str.toLowerCase().split(""),
-          $p = $("<p />");
-      for (var l in chars) {
-        var code = chars[l].charCodeAt(0),
-            klass;
-        if (code < 123 && code > 96) { klass = chars[l]; }
-        else if (code === 222) { klass = "quote"; }
-        else if (code === 46) { klass = "period"; }
-        else if (code === 58) { klass = "colon"; }
-        else if (code === 49) { klass = "exclamation"; }
-        else if (code === 32) { klass = "space"; }
-        else { klass = "space"; }
-        $("<span />").addClass(klass).appendTo($p);
-      }
-      $p.appendTo($dialog);
-    };
     if (typeof txt === "object") {
       for (var i in txt) {
-        convertText(txt[i]);
+        convertText(txt[i], $dialog);
       }
     }
     else {
-      convertText(txt);
+      convertText(txt, $dialog);
     }
     $dialog.show();
     $dialog_layer.show().bind("click.complete_text", function(e) {
@@ -203,6 +284,23 @@ $(function() {
       }
     };
     showSpan();
+  }
+
+  function updateInventory(item, adding) {
+    if (adding) {
+      var $item = $("<li />").attr({
+        title: item.id
+      }).bind("click", function() {
+        $(this).trigger(action);
+      }).appendTo($inventory.find("ul"));
+      for (var v in item) {
+        if (v !== "id") {
+          $item.bind(v, item[v]);
+        }
+      }
+      convertText(item.id, $item);
+      $item.find("span").show();
+    }
   }
 
   function random(max, min) {
