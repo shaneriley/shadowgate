@@ -132,11 +132,12 @@ $(function() {
       }
     },
     "2": {
-      torch1: {
+      /*torch1: {
         "default": function() { $(this).trigger("look"); },
         look: defaults.torch.look,
         take: function() { torch($(this)); }
-      },
+      },*/
+      torch1: new Torch(),
       torch2: {
         "default": function() { $(this).trigger("look"); },
         look: defaults.torch.look,
@@ -235,6 +236,28 @@ $(function() {
     }
   };
   load_indicator();
+
+  function Interactive() {
+    return {
+      nothing: function() { dialog("Nothing happened."); },
+      take: function() { dialog("You can't take it!"); },
+      open: function() { dialog("It won't open!"); },
+      use: function() { dialog(["You can't use what you", "didn't take."]); },
+      leave: function() { dialog(["You can't drop what you", "didn't take."]); },
+      speak: function() { dialog(["What you expected hasn't", "happened"]); }
+    };
+  }
+  function Torch() {
+    var t = new Interactive();
+    t.look = function() { dialog([
+      "It's a torch. An oil",
+      "soaked rag is wrapped",
+      "around it."]);
+    };
+    t.take = function() { torch($(this)); };
+    t.close = t.hit = t.nothing;
+    return t;
+  }
 
   function stageSetup() {
     var s = stages[$stage[0].className.match(/\d/g).join(",")];
