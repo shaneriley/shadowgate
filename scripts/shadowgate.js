@@ -37,12 +37,27 @@ $(function() {
     "222": "quote",
     "46": "period",
     "58": "colon",
-    "49": "exclamation",
+    "33": "exclamation",
     "32": "space",
     "39": "apostrophe"
   };
   var remaining_images = images.length;
   var action = "default";
+  var defaults = {
+    nothing: function() { dialog("Nothing happened."); },
+    no_take: function() { dialog("You can't take it!"); },
+    no_open: function() { dialog("It won't open!"); },
+    no_use: function() { dialog(["You can't use what you", "didn't take."]); },
+    no_leave: function() { dialog(["You can't drop what you", "didn't take."]); },
+    no_speak: function() { dialog(["What you expected hasn't", "happened"]); },
+    torch: {
+      look: function() { dialog([
+        "It's a torch. An oil",
+        "soaked rag is wrapped",
+        "around it."]);
+      }
+    }
+  };
   var stages = {
     "1": {
       skull: {
@@ -54,6 +69,7 @@ $(function() {
             "seems quite clear: death",
             "lurks inside."]);
         },
+        take: defaults.no_take,
         open: function() {
           var $e = $(this);
           if ($stage.hasClass("s1")) {
@@ -76,7 +92,11 @@ $(function() {
             });
           }
           else { dialog("The skull is closed."); }
-        }
+        },
+        use: defaults.nothing,
+        hit: defaults.nothing,
+        leave: defaults.no_leave,
+        speak: defaults.no_speak
       },
       key1: {
         "default": function() { $(this).trigger("look"); },
@@ -93,7 +113,8 @@ $(function() {
           $(this).remove();
           dialog("The key 1 is in hand.");
           updateInventory(inventory[inventory.length - 1], true);
-        }
+        },
+        leave: defaults.no_leave
       },
       door: {
         "default": function() { door($(this), "s2"); },
@@ -104,19 +125,28 @@ $(function() {
           ]);
         },
         open: function() { $(this).trigger("default"); },
-        move: function() { $(this).trigger("default"); }
+        close: function() { $(this).closeDoor(); },
+        move: function() { $(this).trigger("default"); },
+        leave: defaults.no_leave,
+        take: defaults.no_take
       }
     },
     "2": {
       torch1: {
         "default": function() { $(this).trigger("look"); },
-        look: function() { dialog("It's a torch."); },
+        look: defaults.torch.look,
         take: function() { torch($(this)); }
       },
       torch2: {
         "default": function() { $(this).trigger("look"); },
-        look: function() { dialog("It's a torch."); },
-        take: function() { torch($(this)); }
+        look: defaults.torch.look,
+        take: function() { torch($(this)); },
+        open: defaults.no_open,
+        close: defaults.nothing,
+        use: defaults.no_use,
+        hit: defaults.nothing,
+        leave: defaults.no_leave,
+        speak: defaults.no_speak
       },
       door1: {
         "default": function() { dialog("The door is locked."); },
@@ -145,7 +175,8 @@ $(function() {
             "reinforced with heavy",
             "sheets of steel."
           ]);
-        }
+        },
+        close: function() { $(this).closeDoor(); }
       },
       door2: {
         "default": function() { door($(this), "s4"); },
@@ -161,12 +192,12 @@ $(function() {
           }
           else { dialog(["You seem to be wasting", "your time."]); }
         },
-        take: function() { dialog("You can't take it!"); },
-        open: function() { dialog("It won't open!"); },
-        close: function() { dialog("Nothing happened."); },
-        hit: function() { dialog("Nothing happened."); },
+        take: defaults.no_take,
+        open: defaults.no_open,
+        close: defaults.nothing,
+        hit: defaults.nothing,
         leave: function() { dialog("You can't drop it here."); },
-        speak: function() { dialog(["What you expected hasn't", "happened"]); }
+        speak: defaults.no_speak
       }
     }
   };
@@ -278,6 +309,13 @@ $(function() {
       dialog("The door is opened.");
     }
   }
+
+  (function($) {
+    $.fn.closeDoor = function() {
+      dialog("The door is closed.");
+      return this.removeClass("open");
+    };
+  })(jQuery);
 
   function convertText(str, $e) {
     var chars = str.toLowerCase().split(""),
