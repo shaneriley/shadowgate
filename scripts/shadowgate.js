@@ -225,6 +225,15 @@ $(function() {
     var chars = str.toLowerCase().split(""),
         $p = $("<p />"),
         digits_and_punct = {
+          "1": "one",
+          "2": "two",
+          "3": "three",
+          "4": "four",
+          "5": "five",
+          "6": "six",
+          "7": "seven",
+          "8": "eight",
+          "9": "nine",
           "222": "quote",
           "46": "period",
           "58": "colon",
@@ -235,7 +244,7 @@ $(function() {
     for (var l in chars) {
       var code = chars[l].charCodeAt(0),
           klass;
-      //console.log(chars[l], code);
+      if (!isNaN(parseInt(chars[l], 10))) { code = parseInt(chars[l], 10); }
       if (code < 123 && code > 96) { klass = chars[l]; }
       else if (digits_and_punct.hasOwnProperty(code)) { klass = digits_and_punct[code]; }
       else { klass = "space"; }
