@@ -24,6 +24,23 @@ $(function() {
     "torch_large.gif",
     "title.gif"
   ];
+  var digits_and_punct = {
+    "1": "one",
+    "2": "two",
+    "3": "three",
+    "4": "four",
+    "5": "five",
+    "6": "six",
+    "7": "seven",
+    "8": "eight",
+    "9": "nine",
+    "222": "quote",
+    "46": "period",
+    "58": "colon",
+    "49": "exclamation",
+    "32": "space",
+    "39": "apostrophe"
+  };
   var remaining_images = images.length;
   var action = "default";
   var stages = {
@@ -204,8 +221,48 @@ $(function() {
   }
 
   function torch($e) {
-    if ($.inArray("torch", inventory) < 0) {
-      inventory.push("torch");
+    var nonexistent = true;
+    for (var i in inventory) {
+      if (inventory[i].id === "torch") {
+        nonexistent = false;
+        inventory[i].count++;
+        var $i = $inventory.find("li[title=torch]");
+        if (inventory[i].count === 2) {
+          $("<span />", {"class": "equal"}).appendTo($i.find("p")).show();
+          $("<span />", {"class": "two"}).appendTo($i.find("p")).show();
+        }
+        else {
+          $i.find("span:eq(6)").removeClass().addClass(digits_and_punct[inventory[i].count]);
+        }
+      }
+    }
+    if (nonexistent) {
+      inventory.push({
+        id: "torch",
+        count: 1,
+        use: function() {
+          dialog("The torch is lit.");
+          for (var i in inventory) {
+            if (inventory[i].id === "torch") {
+              if (inventory[i].count > 2) {
+                $(this).find("span:eq(6)").removeClass().addClass(digits_and_punct[inventory[i].count]);
+              }
+              else if (inventory[i].count === 2) {
+                $(this).find("span:gt(4)").remove();
+              }
+              else {
+                updateInventory(inventory[i], false);
+                var left = inventory.slice(0, i + 1),
+                    right = inventory.slice(i + 1);
+                inventory = left.concat(right);
+              }
+              inventory[i].count--;
+            }
+          }
+        },
+        look: function() { dialog("It's an unlit torch."); }
+      });
+      updateInventory(inventory[inventory.length - 1], true);
     }
     dialog("The torch is in hand.");
     $e.remove();
@@ -218,29 +275,13 @@ $(function() {
     }
     else {
       $e.addClass("open");
+      dialog("The door is opened.");
     }
   }
 
   function convertText(str, $e) {
     var chars = str.toLowerCase().split(""),
-        $p = $("<p />"),
-        digits_and_punct = {
-          "1": "one",
-          "2": "two",
-          "3": "three",
-          "4": "four",
-          "5": "five",
-          "6": "six",
-          "7": "seven",
-          "8": "eight",
-          "9": "nine",
-          "222": "quote",
-          "46": "period",
-          "58": "colon",
-          "49": "exclamation",
-          "32": "space",
-          "39": "apostrophe"
-        };
+        $p = $("<p />");
     for (var l in chars) {
       var code = chars[l].charCodeAt(0),
           klass;
@@ -303,12 +344,15 @@ $(function() {
         $(this).trigger(action);
       }).appendTo($inventory.find("ul"));
       for (var v in item) {
-        if (v !== "id") {
+        if (typeof item[v] === "function") {
           $item.bind(v, item[v]);
         }
       }
       convertText(item.id, $item);
       $item.find("span").show();
+    }
+    else {
+      $inventory.find("ul li[title=" + item.id + "]").remove();
     }
   }
 

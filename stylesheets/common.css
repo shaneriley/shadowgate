@@ -68,6 +68,19 @@ body {
     height: 42px; }
     #inventory .torch.large { background: transparent url("../images/torch_large.gif") 0 0 no-repeat; }
     #inventory .torch.left { left: 16px; }
+  #inventory ul.letters {
+    position: absolute;
+    left: 40px;
+    top: 48px;
+    z-index: 2; }
+    #inventory ul.letters li {
+      clear: both;
+      height: 43px; }
+      #inventory ul.letters li span.status {
+        float: left;
+        width: 22px;
+        height: 22px; }
+      #inventory ul.letters li span.active { background: #000000; }
 #view-frame {
   display: none;
   position: absolute;
@@ -177,6 +190,7 @@ a#card_up, a#card_down { width: 21px; }
   .letters .seven { background-position: -666px 0; }
   .letters .eight { background-position: -684px 0; }
   .letters .nine { background-position: -702px 0; }
+  .letters .equal { background-position: -720px 0; }
 
 #stage[class^="s1"] { background-image: url("../images/1.gif"); }
 #stage.s1_alt { background-position: 0 100%; }
