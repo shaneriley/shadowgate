@@ -132,23 +132,8 @@ $(function() {
       }
     },
     "2": {
-      /*torch1: {
-        "default": function() { $(this).trigger("look"); },
-        look: defaults.torch.look,
-        take: function() { torch($(this)); }
-      },*/
       torch1: new Torch(),
-      torch2: {
-        "default": function() { $(this).trigger("look"); },
-        look: defaults.torch.look,
-        take: function() { torch($(this)); },
-        open: defaults.no_open,
-        close: defaults.nothing,
-        use: defaults.no_use,
-        hit: defaults.nothing,
-        leave: defaults.no_leave,
-        speak: defaults.no_speak
-      },
+      torch2: new Torch(),
       door1: {
         "default": function() { dialog("The door is locked."); },
         open: function() {
@@ -267,7 +252,7 @@ $(function() {
         "class": v
       }).bind("click", function() {
         $(this).trigger(action);
-      }).appendTo($stage);
+      }).data("obj", s[v]).appendTo($stage);
       for (var e in s[v]) {
         $div.bind(e, s[v][e]);
       }
@@ -281,13 +266,7 @@ $(function() {
         nonexistent = false;
         inventory[i].count++;
         var $i = $inventory.find("li[title=torch]");
-        if (inventory[i].count === 2) {
-          $("<span />", {"class": "equal"}).appendTo($i.find("p")).show();
-          $("<span />", {"class": "two"}).appendTo($i.find("p")).show();
-        }
-        else {
-          $i.find("span:eq(6)").removeClass().addClass(digits_and_punct[inventory[i].count]);
-        }
+        $i.find("p span:eq(6)").removeClass().addClass(digits_and_punct[inventory[i].count]);
       }
     }
     if (nonexistent) {
@@ -298,11 +277,9 @@ $(function() {
           dialog("The torch is lit.");
           for (var i in inventory) {
             if (inventory[i].id === "torch") {
-              if (inventory[i].count > 2) {
-                $(this).find("span:eq(6)").removeClass().addClass(digits_and_punct[inventory[i].count]);
-              }
-              else if (inventory[i].count === 2) {
-                $(this).find("span:gt(4)").remove();
+              if (inventory[i].count != 1) {
+                inventory[i].count--;
+                $(this).find("p span:eq(6)").removeClass().addClass(digits_and_punct[inventory[i].count]);
               }
               else {
                 updateInventory(inventory[i], false);
@@ -310,13 +287,15 @@ $(function() {
                     right = inventory.slice(i + 1);
                 inventory = left.concat(right);
               }
-              inventory[i].count--;
             }
           }
         },
         look: function() { dialog("It's an unlit torch."); }
       });
       updateInventory(inventory[inventory.length - 1], true);
+      var $p = $inventory.find("li[title=torch] p");
+      $("<span />", {"class": "equal"}).appendTo($p).show();
+      $("<span />", {"class": "one"}).appendTo($p).show();
     }
     dialog("The torch is in hand.");
     $e.remove();
@@ -410,6 +389,7 @@ $(function() {
         }
       }
       convertText(item.id, $item);
+      $("<span />", {"class": "status"}).prependTo($item);
       $item.find("span").show();
     }
     else {
@@ -420,5 +400,8 @@ $(function() {
   function random(max, min) {
     min = min || 0;
     return min + Math.floor(Math.random() * max);
+  }
+
+  function defaultInventoryAction() {
   }
 });
