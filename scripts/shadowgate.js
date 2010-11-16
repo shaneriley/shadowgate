@@ -104,9 +104,18 @@ $(function() {
         take: function() {
           inventory.push({
             id: "key 1",
+            interacts_with: {
+              ".s2 .door1": null,
+              ".s2 .door2": function() { dialog("Wrong door."); },
+              "default": function() {
+                dialog(["You can't seem to find a", "keyhole."]);
+              }
+            },
             use: function() {
               dialog(["What do you want to", "use this on?"]);
               $(this).addClass("active");
+              var obj = $(this).data("obj");
+              defaultInventoryAction(obj.interacts_with);
             },
             look: function() { dialog("it's a small iron key."); }
           });
@@ -135,7 +144,10 @@ $(function() {
       torch1: new Torch(),
       torch2: new Torch(),
       door1: {
-        "default": function() { dialog("The door is locked."); },
+        "default": function() {
+          var $e = $(this);
+          ($e.data("obj").unlocked) ? door($e, "s4") : dialog("The door is locked.");
+        },
         open: function() {
           if (stages["2"].door1.unlocked) { door($(this), "s3"); }
           else {
@@ -165,7 +177,10 @@ $(function() {
         close: function() { $(this).closeDoor(); }
       },
       door2: {
-        "default": function() { door($(this), "s4"); },
+        "default": function() {
+          var $e = $(this);
+          ($e.data("obj").unlocked) ? door($e, "s4") : dialog("The door is locked.");
+        },
         open: function() { $(this).trigger("default"); }
       },
       rug: {
@@ -354,12 +369,12 @@ $(function() {
       if (hidden) {
         $dialog.find("span").show();
         $dialog_layer.unbind(e).bind("click.hide_dialog", function(e) {
-          $dialog.html("").hide()
+          $dialog.html("").hide();
           $dialog_layer.hide().unbind(e);
         });
       }
       else {
-        $dialog.html("").hide()
+        $dialog.html("").hide();
         $dialog_layer.hide().unbind(e);
       }
     });
@@ -382,7 +397,7 @@ $(function() {
         title: item.id
       }).bind("click", function() {
         $(this).trigger(action);
-      }).appendTo($inventory.find("ul"));
+      }).data("obj", item).appendTo($inventory.find("ul"));
       for (var v in item) {
         if (typeof item[v] === "function") {
           $item.bind(v, item[v]);
@@ -402,6 +417,37 @@ $(function() {
     return min + Math.floor(Math.random() * max);
   }
 
-  function defaultInventoryAction() {
+  function defaultInventoryAction(obj) {
+    $(document).bind("click.use_item", function(e) {
+      for (var i in obj) {
+        if ($(e.target)[0] === $(i)[0]) {
+          obj.interacted = true;
+          if (typeof obj[i] === "function") {
+            obj[i]();
+          }
+        }
+      }
+      if (obj.interacted) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(document).unbind(e);
+        document.use_item_fired = false;
+        $inventory.find(".active").removeClass("active");
+        obj.interacted = false;
+      }
+      else {
+        if ($dialog_layer.is(":visible")) { return false; }
+        else if (!document.use_item_fired) { document.use_item_fired = true; }
+        else {
+          e.preventDefault();
+          e.stopPropagation();
+          $(document).unbind(e);
+          obj["default"]();
+          document.use_item_fired = false;
+          $inventory.find(".active").removeClass("active");
+        }
+      }
+      return false;
+    });
   }
 });
