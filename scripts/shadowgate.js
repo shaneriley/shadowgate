@@ -236,6 +236,7 @@ $(function() {
     }
   };
   load_indicator();
+  $interface.find("a#save").click(saveGame);
 
   function Interactive() {
     return {
@@ -259,8 +260,8 @@ $(function() {
     return t;
   }
 
-  function stageSetup() {
-    var s = stages[$stage[0].className.match(/\d/g).join(",")];
+  function stageSetup(stage) {
+    var s = stages[stage] || stages[$stage[0].className.match(/\d/g).join(",")];
     $stage.empty();
     for (var v in s) {
       var $div = $("<div />").attr({
@@ -324,6 +325,58 @@ $(function() {
     else {
       $e.addClass("open");
       dialog("The door is opened.");
+    }
+  }
+
+  function functionToString(obj) {
+    for (var i in obj) {
+      if (typeof obj[i] === "object") { obj[i] = functionToString(obj[i]); }
+      else if (typeof obj[i] === "function") { obj[i] = obj[i].toString(); }
+    }
+    return obj;
+  }
+
+  function stringToFunction(obj) {
+    for (var i in obj) {
+      if (typeof obj[i] === "object") { obj[i] = stringToFunction(obj[i]); }
+      else if (typeof obj[i] === "string") {
+        if (/function/.test(obj[i])) {
+          obj[i] = eval("(" + obj[i] + ")");
+        }
+      }
+    }
+    return obj;
+  }
+
+  function saveGame() {
+    var state = {};
+    state.stage = stages[$stage[0].className.match(/\d/g).join(",")];
+    state.inventory = inventory;
+    state.torches = {
+      left: $inventory.find("a.torch.left")[0].className,
+      right: $inventory.find("a.torch.right")[0].className
+    };
+    for (var i in state.inventory) {
+      var item = state.inventory[i];
+      for (var q in item) {
+        if (typeof item[q] === "function") { item[q] = item[q].toString(); }
+      }
+    }
+    functionToString(state);
+    localStorage.setObject("shadowgate", state);
+    dialog("Progress saved.");
+    $interface.find("#save").removeClass("active");
+  }
+
+  function loadGame() {
+    var state = stringToFunction(localStorage.getObject("shadowgate"));
+    if (state) {
+      stageSetup(state.stage);
+      $inventory.find("ul").append(state.inventory);
+      with (state.torches) {
+        $inventory.find("a.torch.left").addClass(left);
+        $inventory.find("a.torch.right").addClass(right);
+      }
     }
   }
 
@@ -450,4 +503,7 @@ $(function() {
       return false;
     });
   }
+
+  Storage.prototype.setObject = function(key, value) { this.setItem(key, JSON.stringify(value)); };
+  Storage.prototype.getObject = function(key) { return JSON.parse(this.getItem(key)); };
 });
