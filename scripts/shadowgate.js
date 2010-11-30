@@ -225,13 +225,18 @@ $(function() {
     }
     else {
       $("#loading").remove();
-      $game.removeClass().addClass("title").bind("click.title", function(e) {
-        $(this).unbind(e).removeClass();
+      $game.removeClass().addClass("title").one("click.title", function() {
+        $(this).removeClass();
         $interface.show();
         $inventory.show();
         $("#view-frame").show();
         $stage.addClass("s1").show();
-        stageSetup();
+        if (localStorage.shadowgate) {
+          loadGame();
+        }
+        else {
+          stageSetup();
+        }
       });
     }
   };
@@ -261,8 +266,9 @@ $(function() {
   }
 
   function stageSetup(stage) {
-    var s = stages[stage] || stages[$stage[0].className.match(/\d/g).join(",")];
-    $stage.empty();
+    stage = stage || $stage[0].className.match(/\d/g).join(",");
+    var s = stages[stage];
+    $stage.empty().removeClass().addClass("s" + stage);
     for (var v in s) {
       var $div = $("<div />").attr({
         "class": v
@@ -350,7 +356,7 @@ $(function() {
 
   function saveGame() {
     var state = {};
-    state.stage = stages[$stage[0].className.match(/\d/g).join(",")];
+    state.stage = $stage[0].className.match(/\d/g).join(",");
     state.inventory = inventory;
     state.torches = {
       left: $inventory.find("a.torch.left")[0].className,
@@ -372,11 +378,17 @@ $(function() {
     var state = stringToFunction(localStorage.getObject("shadowgate"));
     if (state) {
       stageSetup(state.stage);
-      $inventory.find("ul").append(state.inventory);
+      inventory = state.inventory;
+      for (var i in inventory) {
+        updateInventory(inventory[i], true);
+      }
       with (state.torches) {
         $inventory.find("a.torch.left").addClass(left);
         $inventory.find("a.torch.right").addClass(right);
       }
+    }
+    else {
+      stageSetup();
     }
   }
 
@@ -445,7 +457,7 @@ $(function() {
   }
 
   function updateInventory(item, adding) {
-    if (adding) {
+    var addItem = function() {
       var $item = $("<li />").attr({
         title: item.id
       }).bind("click", function() {
@@ -459,6 +471,14 @@ $(function() {
       convertText(item.id, $item);
       $("<span />", {"class": "status"}).prependTo($item);
       $item.find("span").show();
+    };
+    if (adding) {
+      addItem();
+      if (item.id === "torch") {
+        var $p = $inventory.find("li[title=torch] p");
+        $("<span />", {"class": "equal"}).appendTo($p).show();
+        $("<span />", {"class": digits_and_punct[item.count] }).appendTo($p).show();
+      }
     }
     else {
       $inventory.find("ul li[title=" + item.id + "]").remove();
