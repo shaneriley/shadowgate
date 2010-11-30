@@ -264,3 +264,23 @@ a#card_up, a#card_down { width: 21px; }
   width: 84px;
   height: 37px;
   background: transparent url("../images/2_rug.gif") 0 0 no-repeat; }
+
+#stage.s3 { background-image: url("../images/3.gif"); }
+.s3 .torch1 {
+  left: 13px;
+  top: 87px;
+  width: 35px;
+  height: 55px;
+  background: transparent url("../images/3_torch1.gif") 0 0 no-repeat; }
+.s3 .torch2 {
+  left: 101px;
+  top: 95px;
+  width: 29px;
+  height: 47px;
+  background: transparent url("../images/3_torch2.gif") 0 0 no-repeat; }
+.s3 .door {
+  left: 130px;
+  top: 129px;
+  width: 15px;
+  height: 34px;
+  background: transparent url("../images/3_door.gif") 0 0 no-repeat; }

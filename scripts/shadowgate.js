@@ -48,6 +48,7 @@ $(function() {
   var action = "default";
   var defaults = {
     nothing: function() { dialog("Nothing happened."); },
+    wasting_time: function() { dialog(["You seem to be wasting", "your time."]); },
     no_take: function() { dialog("You can't take it!"); },
     no_open: function() { dialog("It won't open!"); },
     no_use: function() { dialog(["You can't use what you", "didn't take."]); },
@@ -101,6 +102,9 @@ $(function() {
         }
       },
       look: function() { dialog("It's an unlit torch."); }
+    },
+    "torch_special": {
+      id: "torch"
     }
   };
 
@@ -181,7 +185,7 @@ $(function() {
       door1: {
         "default": function() {
           var $e = $(this);
-          ($e.data("obj").unlocked) ? door($e, "s4") : dialog("The door is locked.");
+          ($e.data("obj").unlocked) ? door($e, "s3") : dialog("The door is locked.");
         },
         open: function() {
           if (stages["2"].door1.unlocked) { door($(this), "s3"); }
@@ -245,6 +249,49 @@ $(function() {
         { door: "door1", s: "s3", x: 2, y: 0 },
         { door: "door2", s: "s4", x: 4, y: 2 },
         { door: "door_s1", s: "s1", x: 2, y: 4 }
+      ]
+    },
+    "3": {
+      door: {
+        "default": function() {
+          door($(this), "s5", ["The stone falls away to", "reveal a secret passage!"]);
+        },
+        look: function() { dialog("It's a stone wall."); },
+        take: defaults.no_take,
+        close: function() { dialog("The wall is closed."); },
+        use: defaults.wasting_time,
+        hit: function() { $(this).trigger("default"); },
+        leave: defaults.wasting_time,
+        speak: defaults.no_speak
+      },
+      torch1: {
+        "default": function() { },
+        look: function() { },
+        take: function() {
+          inventory.push(inventory_item["torch_special"]);
+          deleteItem($(this).remove());
+          dialog("The torch is in hand.");
+          updateInventory(inventory[inventory.length - 1], true);
+        },
+        open: function() { },
+        close: function() { },
+        use: function() { },
+        hit: function() { },
+        leave: function() { },
+        speak: function() { },
+      },
+      torch2: new Torch(),
+      hall: {
+        "default": function() { }
+      },
+      door_s2: {
+        "default": function() {
+          door($(this).addClass("open"), "s2");
+        }
+      },
+      move: [
+        { door: "door", s: "s6", x: 3, y: 0 },
+        { door: "door_s2", s: "s2", x: 2, y: 4 }
       ]
     }
   };
@@ -377,7 +424,7 @@ $(function() {
     deleteItem($e);
   }
 
-  function door($e, destination) {
+  function door($e, destination, text) {
     if ($e.hasClass("open")) {
       $stage.removeClass().addClass(destination);
       stageSetup();
@@ -385,7 +432,7 @@ $(function() {
     else {
       $e.addClass("open");
       $e.data("obj")["class"] = "open";
-      dialog("The door is opened.");
+      dialog(text || "The door is opened.");
     }
   }
 
