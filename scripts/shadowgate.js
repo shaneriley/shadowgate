@@ -5,6 +5,7 @@ $(function() {
       $stage = $("#stage"),
       $dialog = $("#dialog"),
       $dialog_layer = $("#dialog_layer"),
+      $move_grid = $("#move_grid"),
       inventory = [];
   var images = [
     "1_key.gif",
@@ -34,12 +35,14 @@ $(function() {
     "7": "seven",
     "8": "eight",
     "9": "nine",
-    "222": "quote",
+    "32": "space",
+    "33": "exclamation",
+    "34": "quote",
+    "39": "apostrophe",
+    "44": "comma",
     "46": "period",
     "58": "colon",
-    "33": "exclamation",
-    "32": "space",
-    "39": "apostrophe"
+    "63": "question"
   };
   var remaining_images = images.length;
   var action = "default";
@@ -58,6 +61,49 @@ $(function() {
       }
     }
   };
+
+  var inventory_item = {
+    "key 1": {
+      id: "key 1",
+      interacts_with: {
+        ".s2 .door1": null,
+        ".s2 .door2": function() { dialog("Wrong door."); },
+        "default": function() {
+          dialog(["You can't seem to find a", "keyhole."]);
+        }
+      },
+      use: function() {
+        dialog(["What do you want to", "use this on?"]);
+        $(this).addClass("active");
+        var obj = $(this).data("obj");
+        defaultInventoryAction(obj.interacts_with);
+      },
+      look: function() { dialog("it's a small iron key."); }
+    },
+    "torch": {
+      id: "torch",
+      count: 1,
+      use: function() {
+        dialog("The torch is lit.");
+        for (var i in inventory) {
+          if (inventory[i].id === "torch") {
+            if (inventory[i].count != 1) {
+              inventory[i].count--;
+              $(this).find("p span:eq(6)").removeClass().addClass(digits_and_punct[inventory[i].count]);
+            }
+            else {
+              updateInventory(inventory[i], false);
+              var left = inventory.slice(0, i + 1),
+                  right = inventory.slice(i + 1);
+              inventory = left.concat(right);
+            }
+          }
+        }
+      },
+      look: function() { dialog("It's an unlit torch."); }
+    }
+  };
+
   var stages = {
     "1": {
       skull: {
@@ -122,7 +168,8 @@ $(function() {
         move: function() { $(this).trigger("default"); },
         leave: defaults.no_leave,
         take: defaults.no_take
-      }
+      },
+      move: [{ door: "door", s: "s2" , x: 2, y: 0}]
     },
     "2": {
       torch1: new Torch(),
@@ -183,7 +230,18 @@ $(function() {
         hit: defaults.nothing,
         leave: function() { dialog("You can't drop it here."); },
         speak: defaults.no_speak
-      }
+      },
+      door_s1: {
+        "default": function() {
+          door($(this).addClass("open"), "s1");
+        },
+        open: function() { $(this).trigger("default"); }
+      },
+      move: [
+        { door: "door1", s: "s3", x: 2, y: 0 },
+        { door: "door2", s: "s4", x: 4, y: 2 },
+        { door: "door_s1", s: "s1", x: 2, y: 4 }
+      ]
     }
   };
 
@@ -252,8 +310,27 @@ $(function() {
   function stageSetup(stage) {
     stage = stage || $stage[0].className.match(/\d/g).join(",");
     var s = stages[stage];
+    var createMoveGrid = function(grid) {
+      for (var i in grid) {
+        $("<a />", {
+          href: "#",
+          css: {
+            left: grid[i].x * 21,
+            top: grid[i].y * 21
+          }
+        }).click({marker: grid[i]}, function(e) {
+          $stage.find("." + e.data.marker.door).trigger("open");
+          return false;
+        }).appendTo($move_grid);
+      }
+    };
     $stage.empty().removeClass().addClass("s" + stage);
+    $move_grid.empty();
     for (var v in s) {
+      if (v === "move") {
+        createMoveGrid(s[v]);
+        continue;
+      }
       var $div = $("<div />").attr({
         "class": v
       }).bind("click", function() {

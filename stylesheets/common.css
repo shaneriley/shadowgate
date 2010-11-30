@@ -126,6 +126,20 @@ a#open, a#close, a#card_down { top: 81px; }
 a#use, a#hit, a#self { top: 123px; }
 a#leave, a#speak, a#save { top: 166px; }
 a#card_up, a#card_down { width: 21px; }
+#move_grid {
+  position: absolute;
+  left: 40px;
+  top: 60px;
+  z-index: 1;
+  width: 105px;
+  height: 106px; }
+  #move_grid a {
+    display: block;
+    position: absolute;
+    z-index: 2;
+    width: 21px;
+    height: 21px;
+    background: transparent url("../images/icon_move.gif") 0 0 no-repeat; }
 #dialog_layer {
   display: none;
   position: absolute;
@@ -196,6 +210,8 @@ a#card_up, a#card_down { width: 21px; }
   .letters .eight { background-position: -684px 0; }
   .letters .nine { background-position: -702px 0; }
   .letters .equal { background-position: -720px 0; }
+  .letters .question { background-position: -738px 0; }
+  .letters .comma { background-position: -756px 0; }
 
 #stage[class^="s1"] { background-image: url("../images/1.gif"); }
 #stage.s1_alt { background-position: 0 100%; }
