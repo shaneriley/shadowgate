@@ -102,23 +102,7 @@ $(function() {
         "default": function() { $(this).trigger("look"); },
         look: function() { dialog("it's a small iron key."); },
         take: function() {
-          inventory.push({
-            id: "key 1",
-            interacts_with: {
-              ".s2 .door1": null,
-              ".s2 .door2": function() { dialog("Wrong door."); },
-              "default": function() {
-                dialog(["You can't seem to find a", "keyhole."]);
-              }
-            },
-            use: function() {
-              dialog(["What do you want to", "use this on?"]);
-              $(this).addClass("active");
-              var obj = $(this).data("obj");
-              defaultInventoryAction(obj.interacts_with);
-            },
-            look: function() { dialog("it's a small iron key."); }
-          });
+          inventory.push(inventory_item["key 1"]);
           $(this).remove();
           dialog("The key 1 is in hand.");
           updateInventory(inventory[inventory.length - 1], true);
@@ -292,32 +276,8 @@ $(function() {
       }
     }
     if (nonexistent) {
-      inventory.push({
-        id: "torch",
-        count: 1,
-        use: function() {
-          dialog("The torch is lit.");
-          for (var i in inventory) {
-            if (inventory[i].id === "torch") {
-              if (inventory[i].count != 1) {
-                inventory[i].count--;
-                $(this).find("p span:eq(6)").removeClass().addClass(digits_and_punct[inventory[i].count]);
-              }
-              else {
-                updateInventory(inventory[i], false);
-                var left = inventory.slice(0, i + 1),
-                    right = inventory.slice(i + 1);
-                inventory = left.concat(right);
-              }
-            }
-          }
-        },
-        look: function() { dialog("It's an unlit torch."); }
-      });
+      inventory.push(inventory_item.torch);
       updateInventory(inventory[inventory.length - 1], true);
-      var $p = $inventory.find("li[title=torch] p");
-      $("<span />", {"class": "equal"}).appendTo($p).show();
-      $("<span />", {"class": "one"}).appendTo($p).show();
     }
     dialog("The torch is in hand.");
     $e.remove();
