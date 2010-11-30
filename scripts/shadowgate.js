@@ -123,7 +123,11 @@ $(function() {
             $stage.removeClass().addClass("s1_alt");
             $e.animate({
               top: parseInt($e.css("top"), 10) - 32
-            }, 1500);
+            }, 1500, function() {
+              $(this).addClass("open");
+              stages["1"].skull["class"] = "open";
+              stages["1"]["class"] = "s1_alt";
+            });
           }
           else { dialog("The skull is opened."); }
         },
@@ -149,7 +153,7 @@ $(function() {
         look: function() { dialog("it's a small iron key."); },
         take: function() {
           inventory.push(inventory_item["key 1"]);
-          $(this).remove();
+          deleteItem($(this).remove());
           dialog("The key 1 is in hand.");
           updateInventory(inventory[inventory.length - 1], true);
         },
@@ -335,7 +339,7 @@ $(function() {
         }).appendTo($move_grid);
       }
     };
-    $stage.empty().removeClass().addClass("s" + stage);
+    $stage.empty().removeClass().addClass(s["class"] || "s" + stage);
     $move_grid.empty();
     for (var v in s) {
       if (v === "move") {
@@ -370,6 +374,7 @@ $(function() {
     }
     dialog("The torch is in hand.");
     $e.remove();
+    deleteItem($e);
   }
 
   function door($e, destination) {
@@ -382,6 +387,10 @@ $(function() {
       $e.data("obj")["class"] = "open";
       dialog("The door is opened.");
     }
+  }
+
+  function deleteItem($e) {
+    delete stages[$stage[0].className.match(/\d/g).join(",")][$e[0].className];
   }
 
   function functionToString(obj) {
