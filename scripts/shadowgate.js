@@ -309,7 +309,18 @@ $(function() {
 
   function stageSetup(stage) {
     stage = stage || $stage[0].className.match(/\d/g).join(",");
-    var s = stages[stage];
+    var s = stages[stage],
+        allowed_actions = [
+          "default",
+          "look",
+          "take",
+          "open",
+          "close",
+          "use",
+          "hit",
+          "leave",
+          "speak"
+        ];
     var createMoveGrid = function(grid) {
       for (var i in grid) {
         $("<a />", {
@@ -336,8 +347,9 @@ $(function() {
       }).bind("click", function() {
         $(this).trigger(action);
       }).data("obj", s[v]).appendTo($stage);
+      if (s[v]["class"]) { $div.addClass(s[v]["class"]); }
       for (var e in s[v]) {
-        $div.bind(e, s[v][e]);
+        if (allowed_actions.indexOf(e) >= 0) { $div.bind(e, s[v][e]); }
       }
     }
   }
@@ -367,6 +379,7 @@ $(function() {
     }
     else {
       $e.addClass("open");
+      $e.data("obj")["class"] = "open";
       dialog("The door is opened.");
     }
   }
@@ -432,6 +445,7 @@ $(function() {
   (function($) {
     $.fn.closeDoor = function() {
       dialog("The door is closed.");
+      delete this.data("obj")["class"];
       return this.removeClass("open");
     };
   })(jQuery);
