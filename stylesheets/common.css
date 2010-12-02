@@ -8,10 +8,23 @@ body {
   width: 676px;
   height: 633px;
   background-color: #000000; }
-.credit { background: #000000 url("../images/credit.gif") 0 0 no-repeat; }
-.title {
+#game.credit { background: #000000 url("../images/credit.gif") 0 0 no-repeat; }
+#game.title {
   cursor: pointer;
   background: #000000 url("../images/title.gif") 0 0 no-repeat; }
+#game.continue { background-image: url("../images/continue.gif"); }
+  #game.continue a {
+    display: block;
+    position: absolute;
+    left: 211px;
+    top: 338px;
+    z-index: 1;
+    width: 166px;
+    height: 19px;
+    padding: 0 0 0 65px;
+    margin: 0 0 23px 0; }
+  #game.continue a:hover { background: transparent url("../images/dagger.gif") 0 0 no-repeat; }
+  #game.continue a.end { top: 380px; }
 #loading {
   position: absolute;
   left: 50%;
@@ -213,6 +226,7 @@ a#card_up, a#card_down { width: 21px; }
   .letters .question { background-position: -738px 0; }
   .letters .comma { background-position: -756px 0; }
 
+#stage.death { background-image: url("../images/death.gif"); }
 #stage[class^="s1"] { background-image: url("../images/1.gif"); }
 #stage.s1_alt { background-position: 0 100%; }
 #stage[class^="s1"] .skull {
@@ -284,3 +298,15 @@ a#card_up, a#card_down { width: 21px; }
   width: 15px;
   height: 34px;
   background: transparent url("../images/3_door.gif") 0 0 no-repeat; }
+.s3 .door.open { background: transparent; }
+.s3 .pit {
+  left: 47px;
+  top: 211px;
+  width: 204px;
+  height: 42px;
+  background: transparent url("../images/3_pit.gif") 0 0 no-repeat; }
+.s3 .book {
+  left: 56px;
+  top: 163px;
+  width: 42px;
+  height: 14px; }

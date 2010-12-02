@@ -1,4 +1,7 @@
 $(function() {
+  var debug = {
+    no_dialogs: false
+  };
   var $game = $("#game"),
       $interface = $("#interface"),
       $inventory = $("#inventory"),
@@ -254,7 +257,12 @@ $(function() {
     "3": {
       door: {
         "default": function() {
-          door($(this), "s5", ["The stone falls away to", "reveal a secret passage!"]);
+          var $e = $(this);
+          door($e, "s5", ["The stone falls away to", "reveal a secret passage!"]);
+          if (!$e.data("obj").opened) {
+            $e.data("obj").opened = true;
+            createMoveLocation({ door: "door", s: "s5", x: 1, y: 0 });
+          }
         },
         look: function() { dialog("It's a stone wall."); },
         take: defaults.no_take,
@@ -262,32 +270,75 @@ $(function() {
         use: defaults.wasting_time,
         hit: function() { $(this).trigger("default"); },
         leave: defaults.wasting_time,
-        speak: defaults.no_speak
+        speak: defaults.no_speak,
+        opened: false
       },
       torch1: {
-        "default": function() { },
-        look: function() { },
+        "default": function() { $(this).trigger("look"); },
+        look: function() {
+          var el = $(this)[0];
+          if (el.looked) { dialog("It's a strange torch."); }
+          else {
+            dialog([
+              "There is something out",
+              "of the ordinary about",
+              "this torch but you can't",
+              "put a finger on it."
+            ]);
+          }
+          el.looked = true;
+        },
         take: function() {
           inventory.push(inventory_item["torch_special"]);
           deleteItem($(this).remove());
           dialog("The torch is in hand.");
           updateInventory(inventory[inventory.length - 1], true);
         },
-        open: function() { },
-        close: function() { },
-        use: function() { },
-        hit: function() { },
-        leave: function() { },
-        speak: function() { },
+        open: defaults.no_open,
+        close: defaults.nothing,
+        use: defaults.no_use,
+        hit: defaults.nothing,
+        leave: defaults.no_leave,
+        speak: defaults.no_speak,
       },
       torch2: new Torch(),
       hall: {
         "default": function() { }
       },
-      door_s2: {
+      book: {
         "default": function() {
-          door($(this).addClass("open"), "s2");
-        }
+          dialog([
+            "It's an ancient tome.",
+            "It seems that no one has",
+            "disturbed its pages for",
+            "centuries."
+          ]);
+        },
+        take: function() {
+          $("<div />", {"class": "pit"}).appendTo($stage);
+          dialog([
+            "When you remove the book",
+            "from its pedestal, the",
+            "floor collapses, and you",
+            "fall to your death."
+          ], death);
+        },
+        open: function() { },
+        close: function() {
+          var $e = $(this);
+          if ($e.hasClass("open")) {
+            $e.removeClass("open");
+          }
+          dialog("The book is closed.");
+        },
+        use: function() { $(this).trigger("take"); },
+        hit: function() { $(this).trigger("take"); },
+        leave: function() { $(this).trigger("take"); },
+        speak: function() { $(this).trigger("take"); }
+      },
+      door_s2: {
+        "default": function() { door($(this).addClass("open"), "s2"); },
+        open: function() { $(this).trigger("default"); }
       },
       move: [
         { door: "door", s: "s6", x: 3, y: 0 },
@@ -374,16 +425,7 @@ $(function() {
         ];
     var createMoveGrid = function(grid) {
       for (var i in grid) {
-        $("<a />", {
-          href: "#",
-          css: {
-            left: grid[i].x * 21,
-            top: grid[i].y * 21
-          }
-        }).click({marker: grid[i]}, function(e) {
-          $stage.find("." + e.data.marker.door).trigger("open");
-          return false;
-        }).appendTo($move_grid);
+        createMoveLocation(grid[i]);
       }
     };
     $stage.empty().removeClass().addClass(s["class"] || "s" + stage);
@@ -403,6 +445,19 @@ $(function() {
         if (allowed_actions.indexOf(e) >= 0) { $div.bind(e, s[v][e]); }
       }
     }
+  }
+
+  function createMoveLocation(data) {
+    return $("<a />", {
+      href: "#",
+      css: {
+        left: data.x * 21,
+        top: data.y * 21
+      }
+    }).click({marker: data}, function(e) {
+      $stage.find("." + e.data.marker.door).trigger("open");
+      return false;
+    }).appendTo($move_grid);
   }
 
   function torch($e) {
@@ -521,7 +576,8 @@ $(function() {
     $p.appendTo($e);
   }
 
-  function dialog(txt) {
+  function dialog(txt, cb) {
+    if (debug.no_dialogs) { return; }
     if (typeof txt === "object") {
       for (var i in txt) {
         convertText(txt[i], $dialog);
@@ -543,6 +599,7 @@ $(function() {
         $dialog_layer.unbind(e).bind("click.hide_dialog", function(e) {
           $dialog.html("").hide();
           $dialog_layer.hide().unbind(e);
+          if (typeof cb === "function") { cb(); }
         });
       }
       else {
@@ -561,6 +618,37 @@ $(function() {
       }
     };
     showSpan();
+  }
+
+  function death() {
+    $stage.removeClass().empty().addClass("death");
+    dialog(["It's a sad thing that", "your adventures have", "ended here!"], gameContinue);
+  }
+
+  function gameContinue() {
+    var game_elements = [
+      $interface.detach(),
+      $dialog_layer.detach(),
+      $dialog.detach(),
+      $inventory.detach(),
+      $("#view-frame").detach()
+    ];
+    $game.removeClass().addClass("continue");
+    $("<a />", {
+      "class": "continue",
+      href: "#",
+      click: function() {
+        $game.empty().removeClass();
+        for (var i in game_elements) {
+          game_elements[i].appendTo($game);
+        }
+        return false;
+      }
+    }).appendTo($game);
+    /*$("<a />", {
+      "class": "end",
+      href: "#"
+    }).appendTo($game);*/
   }
 
   function updateInventory(item, adding) {
