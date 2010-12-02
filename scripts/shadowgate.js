@@ -581,7 +581,7 @@ $(function() {
     };
     if (adding) {
       addItem();
-      if (item.id === "torch") {
+      if (item.id === "torch" && item.count) {
         var $p = $inventory.find("li[title=torch] p");
         $("<span />", {"class": "equal"}).appendTo($p).show();
         $("<span />", {"class": digits_and_punct[item.count] }).appendTo($p).show();
