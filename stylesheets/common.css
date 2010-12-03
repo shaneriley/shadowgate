@@ -71,30 +71,34 @@ body {
   top: 45px;
   z-index: 1;
   width: 290px;
-  height: 353px;
-  background: transparent url("../images/bg_inventory.jpg") 0 0 no-repeat; }
-  #inventory .inventory_sub {
+  height: 353px; }
+  #inventory .page {
     position: absolute;
-    left: 39px;
+    left: 0
     top: 0;
-    z-index: 2;
-    width: 200px;
-    height: 353px;
-    background: transparent url("../images/bg_inventory.jpg") -39px 0 no-repeat; }
-    #inventory .inventory_sub ul.letters { left: 0; }
+    z-index: 1;
+    width: 212px;
+    height: 332px;
+    padding: 21px 39px 0 39px;
+    background: transparent url("../images/bg_inventory.jpg") 0 0 no-repeat; }
+  #inventory .page.goods {
+    height: 305px;
+    padding-top: 48px; }
+    #inventory .page h1 {
+      padding: 0 0 0 24px;
+      margin: 0 0 8px 0;
+      height: 19px;
+      text-indent: -8685px;
+      background: #f5ddb7; }
+      #inventory .page h1 ul.letters p { padding: 0; }
   #inventory .torch {
     position: absolute;
     top: 8px;
-    z-index: 1;
+    z-index: 5;
     width: 26px;
     height: 42px; }
     #inventory .torch.large { background: transparent url("../images/torch_large.gif") 0 0 no-repeat; }
     #inventory .torch.left { left: 16px; }
-  #inventory ul.letters {
-    position: absolute;
-    left: 39px;
-    top: 48px;
-    z-index: 2; }
     #inventory ul.letters li {
       clear: both;
       height: 43px; }

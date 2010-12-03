@@ -256,9 +256,7 @@ $(function() {
         speak: defaults.no_speak
       },
       door_s1: {
-        "default": function() {
-          door($(this).addClass("open"), "s1");
-        },
+        "default": function() { door($(this).addClass("open"), "s1"); },
         open: function() { $(this).trigger("default"); }
       },
       move: [
@@ -350,8 +348,10 @@ $(function() {
         open: function() {
           dialog(["The book is opened and", "examined.", "", "",
             "A rectangular hole has", "been cut out of the", "inside of the book."], function() {
-            var $book = $("<ul />", {"class": "letters"});
-            $("<div />", {"class": "inventory_sub"}).appendTo($inventory).append($book);
+            var $book = $("<ul />", {"class": "letters"}),
+                $title = $("<h1 />").append($book.clone());
+            convertText("book", $("<li />").appendTo($title.find("ul")));
+            $("<div />", {"class": "page", title: "book"}).appendTo($inventory).append($title).append($book);
             var $item = $("<li />", {
               title: "key 2",
               click: function() {
@@ -361,6 +361,7 @@ $(function() {
             convertText("key 2", $item);
             $("<span />", {"class": "status"}).prependTo($item);
             $item.find("span").show();
+            $title.find("span").show();
           });
         },
         close: function() {
@@ -619,7 +620,10 @@ $(function() {
   $(document).keyup(function(e) {
     var switcher = function(type) {
       if (!type) { return; }
-      type = (type === "clear") ? "default" : type;
+      if (type === "clear") {
+        type = "default";
+        $inventory.find(".active").removeClass("active");
+      }
       action = (action === type) ? "default" : type;
       $interface.find("a").removeClass("active").filter("#" + action).addClass("active");
     };
@@ -744,7 +748,7 @@ $(function() {
         title: item.id
       }).bind("click", function() {
         $(this).trigger(action);
-      }).data("obj", item).appendTo($inventory.find("ul"));
+      }).data("obj", item).appendTo($inventory.find(".page:last ul"));
       for (var v in item) {
         if (typeof item[v] === "function") {
           $item.bind(v, item[v]);
