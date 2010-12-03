@@ -60,7 +60,8 @@ $(function() {
         "soaked rag is wrapped",
         "around it."]);
       }
-    }
+    },
+    ouch: function() { dialog("Ouch! That smarts!"); }
   };
 
   var inventory_item = {
@@ -119,6 +120,12 @@ $(function() {
       id: "sling",
       look: function() {
         dialog(["It's a small leather", "sling. This would come", "in handy for long-range", "battles!"]);
+      }
+    },
+    arrow: {
+      id: "arrow",
+      look: function() {
+        dialog(["A finely crafted silver", "arrow is not uncommon in", "the elven lands."]);
       }
     }
   };
@@ -470,6 +477,130 @@ $(function() {
       entrance_dialog: ["You are in a small", "cramped closet."],
       first_dialog: ["Oh! As you enter, you", "can see a sword and", "a sling inside."]
     },
+    "5": {
+      door: {
+        "default": function() {
+          var $e = $(this);
+          if ($(this).hasClass("open")) {
+            door($(this), "s7");
+          }
+        },
+        look: function() {
+          //dialog();
+        },
+        open: function() { },
+        close: function() { },
+        move: function() { $(this).trigger("default"); },
+        leave: defaults.no_leave,
+        take: defaults.no_take
+      },
+      arrow: {
+        "default": function() { inventory_item.arrow.look(); },
+        look: function() { $(this).trigger("default"); },
+        take: function() {
+          inventory.push(inventory_item.arrow);
+          deleteItem($(this).remove());
+          dialog("The arrow is in hand.");
+          updateInventory(inventory[inventory.length - 1], true);
+        },
+        open: defaults.no_open,
+        close: defaults.nothing,
+        use: defaults.no_use,
+        hit: defaults.nothing,
+        leave: defaults.no_leave,
+        speak: defaults.no_speak
+      },
+      ledge: {
+        look: function() {
+          dialog(["A slab of concrete rests", "upon two stone supports,", "some ten feet from the", "floor."]);
+        },
+        take: defaults.no_take,
+        open: defaults.no_open,
+        close: defaults.nothing,
+        use: defaults.nothing,
+        hit: defaults.ouch,
+        leave: defaults.no_leave,
+        speak: defaults.no_speak
+      },
+      torch_l: {
+        "default": function() {
+          dialog(["This torch seems to be", "fastened to the wall", "with rather modern", "looking nails."]);
+        },
+        look: function() { $(this).trigger("default"); },
+        take: defaults.no_take,
+        open: defaults.no_open,
+        close: defaults.nothing,
+        use: function() {
+          var $e = $(this);
+          dialog("You moved the torch.", function() {
+            $e.addClass("used");
+            $stage.find(".door").addClass("open");
+            dialog(["It's a hidden door.", "There is a spiral", "staircase leading down."]);
+          });
+        },
+        hit: defaults.ouch,
+        leave: defaults.no_leave,
+        speak: defaults.no_speak
+      },
+      torch_r: {
+        "default": function() { dialog(["This torch is attached", "securely to the wall."]); },
+        look: function() { $(this).trigger("default"); },
+        take: defaults.no_take,
+        open: defaults.no_open,
+        close: defaults.nothing,
+        use: defaults.nothing,
+        hit: defaults.ouch,
+        leave: defaults.no_leave,
+        speak: defaults.no_speak
+      },
+      rubble: {
+        "default": function() {
+          var $e = $(this);
+          if ($e.hasClass("visible")) {
+            dialog(["It's rubble from the", "broken ledge."]);
+          }
+        },
+        look: function() { $(this).trigger("default"); },
+        take: defaults.no_take,
+        open: defaults.no_open,
+        close: defaults.nothing,
+        use: defaults.nothing,
+        hit: defaults.ouch,
+        leave: defaults.no_leave,
+        speak: defaults.no_speak
+      },
+      door_ledge: {
+        "default": function() {
+          if ($stage.find(".ledge").hasClass("broken")) {
+            dialog(["Hmm! It's too high for", "you to reach."]);
+          }
+          else {
+            $stage.find(".ledge").addClass("broken");
+            $stage.find(".rubble").addClass("visible");
+            dialog(["The ledge wasn't strong",
+              "enough to hold you.  You",
+              "fall to the ground and",
+              "land hard on your rump."
+            ]);
+          }
+        },
+        move: function() { $(this).trigger("default"); },
+        look: function() { dialog("It is very dark."); },
+        take: defaults.no_take,
+        open: defaults.wasting_time,
+        close: defaults.wasting_time,
+        use: defaults.wasting_time,
+        hit: defaults.nothing,
+        leave: defaults.no_leave,
+        speak: defaults.no_speak
+      },
+      move: [
+        { door: "door_s3", s: "s3", x: 2, y: 4 },
+        { door: "door_ledge", s: "", x: 2, y: 0 }
+      ],
+      first_dialog: ["As soon as you enter the", "room, you see an arrow", "on the front wall."],
+      entrance_dialog: ["Cold air rushes into", "this chamber from an", "opening some ten feet", "above the floor."]
+    },
     "6": {
       door_w: {
         "default": function() { door($(this), "s7"); },
@@ -594,6 +725,7 @@ $(function() {
 
   function stageSetup(stage) {
     stage = stage || $stage[0].className.match(/\d/g).join(",");
+    if (debug.hasOwnProperty("starting_screen")) { stage = debug.starting_screen; }
     var s = stages[stage],
         allowed_actions = [
           "default",
