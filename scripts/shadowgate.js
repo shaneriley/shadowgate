@@ -1,6 +1,6 @@
 $(function() {
   var debug = {
-    no_dialogs: false
+    no_dialogs: true
   };
   var $game = $("#game"),
       $interface = $("#interface"),
@@ -654,7 +654,10 @@ $(function() {
   }
 
   function dialog(txt, cb) {
-    if (debug.no_dialogs) { return; }
+    if (debug.no_dialogs) {
+      if (typeof cb === "function") { cb(); }
+      return;
+    }
     if (typeof txt === "object") {
       if (txt.length > 4) {
         var new_txt = txt.slice(4);

@@ -81,7 +81,7 @@ body {
     width: 200px;
     height: 353px;
     background: transparent url("../images/bg_inventory.jpg") -39px 0 no-repeat; }
-    #inventory .inventory_sub ul.letter { left: 0; }
+    #inventory .inventory_sub ul.letters { left: 0; }
   #inventory .torch {
     position: absolute;
     top: 8px;

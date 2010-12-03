@@ -37,5 +37,8 @@ var inventory_item = {
       }
     },
     look: function() { dialog("It's an unlit torch."); }
+  },
+  "torch_special": {
+    id: "torch"
   }
 };
