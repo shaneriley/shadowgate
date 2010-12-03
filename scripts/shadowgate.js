@@ -337,6 +337,7 @@ $(function() {
             "centuries."
           ]);
         },
+        look: function() { $(this).trigger("default"); },
         take: function() {
           $("<div />", {"class": "pit"}).appendTo($stage);
           dialog([
@@ -347,7 +348,8 @@ $(function() {
           ], death);
         },
         open: function() {
-          dialog(["The book is opened and", "examined."], function() {
+          dialog(["The book is opened and", "examined.", "", "",
+            "A rectangular hole has", "been cut out of the", "inside of the book."], function() {
             var $book = $("<ul />", {"class": "letters"});
             $("<div />", {"class": "inventory_sub"}).appendTo($inventory).append($book);
             var $item = $("<li />", {
@@ -614,6 +616,28 @@ $(function() {
     };
   })(jQuery);
 
+  $(document).keyup(function(e) {
+    var switcher = function(type) {
+      if (!type) { return; }
+      type = (type === "clear") ? "default" : type;
+      action = (action === type) ? "default" : type;
+      $interface.find("a").removeClass("active").filter("#" + action).addClass("active");
+    };
+    var actions = {
+      67: "close",
+      69: "leave",
+      72: "hit",
+      76: "look",
+      77: "move",
+      79: "open",
+      83: "speak",
+      84: "take",
+      85: "use",
+      88: "clear"
+    }
+    switcher(actions[e.keyCode]);
+  });
+
   function convertText(str, $e) {
     var chars = str.toLowerCase().split(""),
         $p = $("<p />");
@@ -635,7 +659,6 @@ $(function() {
       if (txt.length > 4) {
         var new_txt = txt.slice(4);
         txt = txt.slice(0, 4);
-        cb = function() { dialog(new_txt); }
       }
       for (var i in txt) {
         convertText(txt[i], $dialog);
@@ -657,13 +680,15 @@ $(function() {
         $dialog_layer.unbind(e).bind("click.hide_dialog", function(e) {
           $dialog.html("").hide();
           $dialog_layer.hide().unbind(e);
-          if (typeof cb === "function") { cb(); }
+          if (new_txt) { dialog(new_txt, cb); }
+          else if (typeof cb === "function") { cb(); }
         });
       }
       else {
         $dialog.html("").hide();
         $dialog_layer.hide().unbind(e);
-        if (typeof cb === "function") { cb(); }
+        if (new_txt) { dialog(new_txt, cb); }
+        else if (typeof cb === "function") { cb(); }
       }
     });
     var s = 0,
