@@ -180,7 +180,20 @@ $(function() {
         leave: defaults.no_leave,
         take: defaults.no_take
       },
-      move: [{ door: "door", s: "s2" , x: 2, y: 0}]
+      move: [{ door: "door", s: "s2" , x: 2, y: 0}],
+      first_dialog: [
+        "The last thing that you", "remember is standing", "before the wizard lakmir", "as he waved his hands.",
+        "Now you find yourself", "staring at an entryway", "which lies at the edge", "of a forest.",
+        "The druid's words ring", "in your ears: \"within", "the castle Shadowgate", "lies your quest.",
+        "The dreaded warlock lord", "will use his black magic", "to raise the behemoth", "from the dark depths.",
+        "The combination of his", "evil arts and the great", "titan's power will", "surely destroy us all!",
+        "You are the last of the", "line of kings, the seed", "of prophecy that was", "foretold eons ago.",
+        "Only you can stop the", "evil one from darkening", "our world forever! Fare", "thee well.\"",
+        "Gritting your teeth, you", "swear by your God's name", "that you will destroy", "the warlock lord!"
+      ],
+      entrance_dialog: [
+        "It's the entrance to", "Shadowgate. You can hear", "wolves howling deep in", "the forest behind you..."
+      ]
     },
     "2": {
       torch1: new Torch(),
@@ -252,7 +265,17 @@ $(function() {
         { door: "door1", s: "s3", x: 2, y: 0 },
         { door: "door2", s: "s4", x: 4, y: 2 },
         { door: "door_s1", s: "s1", x: 2, y: 4 }
-      ]
+      ],
+      first_dialog: [
+        "\"That pitiful wizard", "Lakmir was a fool to", "send a buffoon like you", "to stop me.",
+        "You will surely regret", "it for the only thing", "here for you is a", "horrible death!\"",
+        "The sound of maniacal", "laughter echoes in your", "ears."
+      ],
+      first_before: function(txt) {
+        $("<div />", {"class": "eyes"}).appendTo($stage);
+        setTimeout(function() { $stage.find(".eyes").remove(); dialog(txt); }, 2000);
+      },
+      entrance_dialog: [ "You stand in a long", "corridor. Huge stone", "archways line the entire", "hall." ]
     },
     "3": {
       door: {
@@ -323,7 +346,21 @@ $(function() {
             "fall to your death."
           ], death);
         },
-        open: function() { },
+        open: function() {
+          dialog(["The book is opened and", "examined."], function() {
+            var $book = $("<ul />", {"class": "letters"});
+            $("<div />", {"class": "inventory_sub"}).appendTo($inventory).append($book);
+            var $item = $("<li />", {
+              title: "key 2",
+              click: function() {
+                $(this).trigger(action);
+              }
+            }).appendTo($book);
+            convertText("key 2", $item);
+            $("<span />", {"class": "status"}).prependTo($item);
+            $item.find("span").show();
+          });
+        },
         close: function() {
           var $e = $(this);
           if ($e.hasClass("open")) {
@@ -435,6 +472,19 @@ $(function() {
         createMoveGrid(s[v]);
         continue;
       }
+      else if (v === "entrance_dialog" && typeof s.before_dialog == "undefined" && s.revisit) { dialog(s[v]); }
+      else if (v === "before_dialog" && s.revisit) { s[v](s.entrance_dialog); }
+      else if (v === "first_dialog" && typeof s.first_before == "undefined") {
+        dialog(s[v]);
+        delete s[v];
+        continue;
+      }
+      else if (v === "first_before") {
+        s[v](s.first_dialog);
+        delete s[v];
+        delete s.first_dialog;
+        continue;
+      }
       var $div = $("<div />").attr({
         "class": v
       }).bind("click", function() {
@@ -445,6 +495,7 @@ $(function() {
         if (allowed_actions.indexOf(e) >= 0) { $div.bind(e, s[v][e]); }
       }
     }
+    s.revisit = true;
   }
 
   function createMoveLocation(data) {
@@ -579,6 +630,11 @@ $(function() {
   function dialog(txt, cb) {
     if (debug.no_dialogs) { return; }
     if (typeof txt === "object") {
+      if (txt.length > 4) {
+        var new_txt = txt.slice(4);
+        txt = txt.slice(0, 4);
+        cb = function() { dialog(new_txt); }
+      }
       for (var i in txt) {
         convertText(txt[i], $dialog);
       }
@@ -605,6 +661,7 @@ $(function() {
       else {
         $dialog.html("").hide();
         $dialog_layer.hide().unbind(e);
+        if (typeof cb === "function") { cb(); }
       }
     });
     var s = 0,

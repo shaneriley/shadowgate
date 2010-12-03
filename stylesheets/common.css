@@ -73,6 +73,15 @@ body {
   width: 290px;
   height: 353px;
   background: transparent url("../images/bg_inventory.jpg") 0 0 no-repeat; }
+  #inventory .inventory_sub {
+    position: absolute;
+    left: 39px;
+    top: 0;
+    z-index: 2;
+    width: 200px;
+    height: 353px;
+    background: transparent url("../images/bg_inventory.jpg") -39px 0 no-repeat; }
+    #inventory .inventory_sub ul.letter { left: 0; }
   #inventory .torch {
     position: absolute;
     top: 8px;
@@ -251,6 +260,12 @@ a#card_up, a#card_down { width: 21px; }
 #stage[class^="s1"] .door.open { background: transparent url("../images/1_open-door.gif") 0 0 no-repeat; }
 
 #stage.s2 { background-image: url("../images/2.gif"); }
+.s2 .eyes {
+  left: 106px;
+  top: 47px;
+  width: 84px;
+  height: 32px;
+  background: transparent url("../images/2_eyes.gif") 0 0 no-repeat; }
 .s2 .torch1,
 .s2 .torch2 {
   top: 53px;
