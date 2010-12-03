@@ -1,6 +1,6 @@
 $(function() {
   var debug = {
-    no_dialogs: false
+    no_dialogs: true
   };
   var $game = $("#game"),
       $interface = $("#interface"),
@@ -111,6 +111,18 @@ $(function() {
       },
       use: function() { $(this).useItem(); },
       look: function() { dialog("it's a small iron key."); }
+    },
+    sword: {
+      id: "sword",
+      look: function() {
+        dialog(["It's a double-edged", "broadsword. The handle", "has druidic script", "written upon it."]);
+      }
+    },
+    sling: {
+      id: "sling",
+      look: function() {
+        dialog(["It's a small leather", "sling. This would come", "in handy for long-range", "battles!"]);
+      }
     }
   };
 
@@ -252,7 +264,7 @@ $(function() {
       },
       rug: {
         "default": function() { dialog(["It's a beautifully woven", "rug."]); },
-        look: function() { dialog(["It's a beautifully woven", "rug."]); },
+        look: function() { $(this).trigger("default"); },
         use: function() {
           if ($inventory.find(".active").attr("title") === "torch") {
             dialog(["The rug quickly catches", "on fire and burns away."]);
@@ -336,7 +348,7 @@ $(function() {
       },
       torch2: new Torch(),
       hall: {
-        "default": function() { }
+        "default": function() { $inventory.find(".page.book").remove(); }
       },
       book: {
         "default": function() {
@@ -358,32 +370,41 @@ $(function() {
           ], death);
         },
         open: function() {
-          dialog(["The book is opened and", "examined.", "", "",
-            "A rectangular hole has", "been cut out of the", "inside of the book."], function() {
-            var $page = newInventoryPage("book");
-            var $item = $("<li />", {
-              title: "key 2",
-              click: function() {
-                $(this).trigger(action);
+          var $e = $(this);
+          if ($e.hasClass("open")) { dialog("The book is opened."); }
+          else {
+            dialog(["The book is opened and", "examined.", "", "",
+              "A rectangular hole has", "been cut out of the", "inside of the book."], function() {
+              var $page = newInventoryPage("book");
+              if (!$inventory.find("[title='key 2']").length) {
+                var $item = $("<li />", {
+                  title: "key 2",
+                  click: function() {
+                    $(this).trigger(action);
+                  }
+                }).bind("look", inventory_item["key 2"].look)
+                .bind("take", function() {
+                  inventory.push(inventory_item["key 2"]);
+                  deleteItem($(this).remove());
+                  dialog("The key 2 is in hand.");
+                  updateInventory(inventory[inventory.length - 1], true);
+                }).appendTo($page.find("> ul"));
+                convertText("key 2", $item);
+                $("<span />", {"class": "status"}).prependTo($item);
+                $item.find("span").show();
               }
-            }).bind("look", inventory_item["key 2"].look)
-            .bind("take", function() {
-              inventory.push(inventory_item["key 2"]);
-              deleteItem($(this).remove());
-              dialog("The key 2 is in hand.");
-              updateInventory(inventory[inventory.length - 1], true);
-            }).appendTo($page.find("> ul"));
-            convertText("key 2", $item);
-            $("<span />", {"class": "status"}).prependTo($item);
-            $item.find("span").show();
-          });
+            });
+          }
+          $e.addClass("open");
         },
         close: function() {
           var $e = $(this);
           if ($e.hasClass("open")) {
             $e.removeClass("open");
+            dialog("You closed the book.");
           }
-          dialog("The book is closed.");
+          else { dialog("The book is closed."); }
+          $inventory.find(".page.book").remove();
         },
         use: function() { $(this).trigger("take"); },
         hit: function() { $(this).trigger("take"); },
@@ -391,7 +412,10 @@ $(function() {
         speak: function() { $(this).trigger("take"); }
       },
       door_s2: {
-        "default": function() { door($(this).addClass("open"), "s2"); },
+        "default": function() {
+          door($(this).addClass("open"), "s2");
+          $inventory.find(".page.book").remove();
+        },
         open: function() { $(this).trigger("default"); }
       },
       move: [
@@ -400,6 +424,50 @@ $(function() {
       ],
       entrance_dialog: ["The stone passage winds", "to an unseen end."],
       first_dialog: ["The stone walls seem", "uncomfortably close as", "you walk down the stairs."]
+    },
+    "4": {
+      sword: {
+        "default": function() { inventory_item.sword.look(); },
+        look: function() { $(this).trigger("default"); },
+        take: function() {
+          inventory.push(inventory_item.sword);
+          deleteItem($(this).remove());
+          dialog("The sword is in hand.");
+          updateInventory(inventory[inventory.length - 1], true);
+        },
+        open: defaults.no_open,
+        close: defaults.nothing,
+        use: defaults.no_use,
+        hit: defaults.nothing,
+        leave: defaults.no_leave,
+        speak: defaults.no_speak
+      },
+      sling: {
+        "default": function() { inventory_item.sling.look(); },
+        look: function() { $(this).trigger("default"); },
+        take: function() {
+          inventory.push(inventory_item.sling);
+          deleteItem($(this).remove());
+          dialog("The sling was taken.");
+          updateInventory(inventory[inventory.length - 1], true);
+        },
+        open: defaults.no_open,
+        close: defaults.nothing,
+        use: defaults.no_use,
+        hit: defaults.nothing,
+        leave: defaults.no_leave,
+        speak: defaults.no_speak
+      },
+      door_s2: {
+        "default": function() {
+          door($(this).addClass("open"), "s2");
+          $inventory.find(".page.book").remove();
+        },
+        open: function() { $(this).trigger("default"); }
+      },
+      move: [{ door: "door_s2", s: "s2", x: 2, y: 4}],
+      entrance_dialog: ["You are in a small", "cramped closet."],
+      first_dialog: ["Oh! As you enter, you", "can see a sword and", "a sling inside."]
     }
   };
 
@@ -779,6 +847,7 @@ $(function() {
       $item.find("span").show();
     };
     if (adding) {
+      if (inventory.length % 7 == 0) { $inventory.append(newInventoryPage()); }
       addItem();
       if (item.id === "torch" && item.count) {
         var $p = $inventory.find("li[title=torch] p");
@@ -797,7 +866,7 @@ $(function() {
       var $title = $("<h1 />").append($ul.clone());
       convertText(heading, $("<li />").appendTo($title.find("ul")));
     }
-    return $("<div />", {"class": "page", title: "book"}).appendTo($inventory).append($title).append($ul);
+    return $("<div />", {"class": "page " + (heading || "goods")}).appendTo($inventory).append($title).append($ul);
   }
 
   function random(max, min) {

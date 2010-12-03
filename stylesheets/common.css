@@ -330,3 +330,17 @@ a#card_up, a#card_down { width: 21px; }
   top: 163px;
   width: 42px;
   height: 14px; }
+
+#stage.s4 { background-image: url("../images/4.gif"); }
+.s4 .sword {
+  left: 85px;
+  top: 79px;
+  width: 129px;
+  height: 24px;
+  background: transparent url("../images/4_sword.gif") 0 0 no-repeat; }
+.s4 .sling {
+  left: 114px;
+  top: 169px;
+  width: 76px;
+  height: 21px;
+  background: transparent url("../images/4_sling.gif") 0 0 no-repeat; }
