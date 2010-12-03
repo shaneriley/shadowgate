@@ -275,7 +275,7 @@ $(function() {
         $("<div />", {"class": "eyes"}).appendTo($stage);
         setTimeout(function() { $stage.find(".eyes").remove(); dialog(txt); }, 2000);
       },
-      entrance_dialog: [ "You stand in a long", "corridor. Huge stone", "archways line the entire", "hall." ]
+      entrance_dialog: ["You stand in a long", "corridor. Huge stone", "archways line the entire", "hall."]
     },
     "3": {
       door: {
@@ -380,7 +380,9 @@ $(function() {
       move: [
         { door: "door", s: "s6", x: 3, y: 0 },
         { door: "door_s2", s: "s2", x: 2, y: 4 }
-      ]
+      ],
+      entrance_dialog: ["The stone passage winds", "to an unseen end."],
+      first_dialog: ["The stone walls seem", "uncomfortably close as", "you walk down the stairs."]
     }
   };
 
