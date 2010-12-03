@@ -344,3 +344,24 @@ a#card_up, a#card_down { width: 21px; }
   width: 76px;
   height: 21px;
   background: transparent url("../images/4_sling.gif") 0 0 no-repeat; }
+
+#stage.s6 { background-image: url("../images/6.gif"); }
+.s6 .door_w {
+  left: 44px;
+  top: 39px;
+  width: 24px;
+  height: 151px;
+  background: transparent url("../images/6_door_w.gif") 0 0 no-repeat; }
+.s6 .door_n {
+  left: 131px;
+  top: 66px;
+  width: 32px;
+  height: 60px;
+  background: transparent url("../images/6_door_n.gif") 0 0 no-repeat; }
+.s6 .door_e {
+  right: 45px;
+  top: 39px;
+  width: 24px;
+  height: 151px;
+  background: transparent url("../images/6_door_e.gif") 0 0 no-repeat; }
+.s6 .open { background: transparent; }

@@ -1,7 +1,4 @@
 $(function() {
-  var debug = {
-    no_dialogs: true
-  };
   var $game = $("#game"),
       $interface = $("#interface"),
       $inventory = $("#inventory"),
@@ -418,8 +415,15 @@ $(function() {
         },
         open: function() { $(this).trigger("default"); }
       },
+      door_s6: {
+        "default": function() {
+          door($(this).addClass("open"), "s6");
+          $inventory.find(".page.book").remove();
+        },
+        open: function() { $(this).trigger("default"); }
+      },
       move: [
-        { door: "door", s: "s6", x: 3, y: 0 },
+        { door: "door_s6", s: "s6", x: 3, y: 0 },
         { door: "door_s2", s: "s2", x: 2, y: 4 }
       ],
       entrance_dialog: ["The stone passage winds", "to an unseen end."],
@@ -459,15 +463,70 @@ $(function() {
         speak: defaults.no_speak
       },
       door_s2: {
-        "default": function() {
-          door($(this).addClass("open"), "s2");
-          $inventory.find(".page.book").remove();
-        },
+        "default": function() { door($(this).addClass("open"), "s2"); },
         open: function() { $(this).trigger("default"); }
       },
       move: [{ door: "door_s2", s: "s2", x: 2, y: 4}],
       entrance_dialog: ["You are in a small", "cramped closet."],
       first_dialog: ["Oh! As you enter, you", "can see a sword and", "a sling inside."]
+    },
+    "6": {
+      door_w: {
+        "default": function() { door($(this), "s7"); },
+        look: function() {
+          dialog([
+            "This door seems to be",
+            "made of solid oak."
+          ]);
+        },
+        open: function() { $(this).trigger("default"); },
+        close: function() { $(this).closeDoor(); },
+        move: function() { $(this).trigger("default"); },
+        leave: defaults.no_leave,
+        take: defaults.no_take
+      },
+      door_n: {
+        "default": function() { door($(this), "s8"); },
+        look: function() {
+          dialog([
+            "This door seems to be",
+            "made of solid oak."
+          ]);
+        },
+        open: function() { $(this).trigger("default"); },
+        close: function() { $(this).closeDoor(); },
+        move: function() { $(this).trigger("default"); },
+        leave: defaults.no_leave,
+        take: defaults.no_take
+      },
+      door_e: {
+        "default": function() { door($(this), "s9"); },
+        look: function() {
+          dialog([
+            "This door seems to be",
+            "made of solid oak."
+          ]);
+        },
+        open: function() { $(this).trigger("default"); },
+        close: function() { $(this).closeDoor(); },
+        move: function() { $(this).trigger("default"); },
+        leave: defaults.no_leave,
+        take: defaults.no_take
+      },
+      door_s3: {
+        "default": function() { door($(this).addClass("open"), "s3"); },
+        open: function() { $(this).trigger("default"); }
+      },
+      move: [
+        { door: "door_s3", s: "s3", x: 2, y: 4 },
+        { door: "door_w", s: "s7", x: 0, y: 2 },
+        { door: "door_n", s: "s8", x: 2, y: 0 },
+        { door: "door_e", s: "s9", x: 4, y: 2 }
+      ],
+      entrance_dialog: [
+        "The stones in these", "walls were probably cut",
+        "by the hands of enslaved", "mountain dwarves."
+      ]
     }
   };
 
