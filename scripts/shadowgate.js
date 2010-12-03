@@ -1,6 +1,6 @@
 $(function() {
   var debug = {
-    no_dialogs: true
+    no_dialogs: false
   };
   var $game = $("#game"),
       $interface = $("#interface"),
@@ -72,16 +72,9 @@ $(function() {
       interacts_with: {
         ".s2 .door1": null,
         ".s2 .door2": function() { dialog("Wrong door."); },
-        "default": function() {
-          dialog(["You can't seem to find a", "keyhole."]);
-        }
+        "default": function() { dialog(["You can't seem to find a", "keyhole."]); }
       },
-      use: function() {
-        dialog(["What do you want to", "use this on?"]);
-        $(this).addClass("active");
-        var obj = $(this).data("obj");
-        defaultInventoryAction(obj.interacts_with);
-      },
+      use: function() { $(this).useItem(); },
       look: function() { dialog("it's a small iron key."); }
     },
     "torch": {
@@ -108,6 +101,16 @@ $(function() {
     },
     "torch_special": {
       id: "torch"
+    },
+    "key 2": {
+      id: "key 2",
+      interacts_with: {
+        ".s2 .door2": null,
+        ".s2 .door1": function() { dialog("Wrong door."); },
+        "default": function() { dialog(["You can't seem to find a", "keyhole."]); }
+      },
+      use: function() { $(this).useItem(); },
+      look: function() { dialog("it's a small iron key."); }
     }
   };
 
@@ -236,7 +239,16 @@ $(function() {
           var $e = $(this);
           ($e.data("obj").unlocked) ? door($e, "s4") : dialog("The door is locked.");
         },
-        open: function() { $(this).trigger("default"); }
+        open: function() { $(this).trigger("default"); },
+        use: function() {
+          if ($inventory.find(".active").attr("title") !== "key 2") {
+            dialog(["You seem to be wasting", "your time."]);
+          }
+          else {
+            stages["2"].door2.unlocked = true;
+            $(this).trigger("open");
+          }
+        }
       },
       rug: {
         "default": function() { dialog(["It's a beautifully woven", "rug."]); },
@@ -348,20 +360,22 @@ $(function() {
         open: function() {
           dialog(["The book is opened and", "examined.", "", "",
             "A rectangular hole has", "been cut out of the", "inside of the book."], function() {
-            var $book = $("<ul />", {"class": "letters"}),
-                $title = $("<h1 />").append($book.clone());
-            convertText("book", $("<li />").appendTo($title.find("ul")));
-            $("<div />", {"class": "page", title: "book"}).appendTo($inventory).append($title).append($book);
+            var $page = newInventoryPage("book");
             var $item = $("<li />", {
               title: "key 2",
               click: function() {
                 $(this).trigger(action);
               }
-            }).appendTo($book);
+            }).bind("look", inventory_item["key 2"].look)
+            .bind("take", function() {
+              inventory.push(inventory_item["key 2"]);
+              deleteItem($(this).remove());
+              dialog("The key 2 is in hand.");
+              updateInventory(inventory[inventory.length - 1], true);
+            }).appendTo($page.find("> ul"));
             convertText("key 2", $item);
             $("<span />", {"class": "status"}).prependTo($item);
             $item.find("span").show();
-            $title.find("span").show();
           });
         },
         close: function() {
@@ -615,6 +629,12 @@ $(function() {
       delete this.data("obj")["class"];
       return this.removeClass("open");
     };
+    $.fn.useItem = function() {
+      dialog(["What do you want to", "use this on?"]);
+      this.addClass("active");
+      var obj = this.data("obj");
+      defaultInventoryAction(obj.interacts_with);
+    };
   })(jQuery);
 
   $(document).keyup(function(e) {
@@ -748,7 +768,7 @@ $(function() {
         title: item.id
       }).bind("click", function() {
         $(this).trigger(action);
-      }).data("obj", item).appendTo($inventory.find(".page:last ul"));
+      }).data("obj", item).appendTo($inventory.find(".page.goods:last > ul"));
       for (var v in item) {
         if (typeof item[v] === "function") {
           $item.bind(v, item[v]);
@@ -769,6 +789,15 @@ $(function() {
     else {
       $inventory.find("ul li[title=" + item.id + "]").remove();
     }
+  }
+
+  function newInventoryPage(heading) {
+    var $ul = $("<ul />", {"class": "letters"});
+    if (heading) {
+      var $title = $("<h1 />").append($ul.clone());
+      convertText(heading, $("<li />").appendTo($title.find("ul")));
+    }
+    return $("<div />", {"class": "page", title: "book"}).appendTo($inventory).append($title).append($ul);
   }
 
   function random(max, min) {

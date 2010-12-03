@@ -91,6 +91,7 @@ body {
       text-indent: -8685px;
       background: #f5ddb7; }
       #inventory .page h1 ul.letters p { padding: 0; }
+      #inventory .page h1 ul.letters span { display: block; }
   #inventory .torch {
     position: absolute;
     top: 8px;
