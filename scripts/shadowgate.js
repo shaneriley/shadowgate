@@ -306,21 +306,24 @@ $(function() {
     "3": {
       door: {
         "default": function() {
-          var $e = $(this);
+          var $e = $(this),
+              obj = $e.data("obj");
           door($e, "s5", ["The stone falls away to", "reveal a secret passage!"]);
-          if (!$e.data("obj").opened) {
-            $e.data("obj").opened = true;
-            createMoveLocation({ door: "door", s: "s5", x: 1, y: 0 });
+          if (typeof obj.opened === "undefined") {
+            obj.opened = true;
+            var pos = $stage.data("obj").move.push({ door: "door", s: "s5", x: 1, y: 0 });
+            $e.data("obj", obj);
+            createMoveLocation($stage.data("obj").move[pos - 1]);
           }
         },
         look: function() { dialog("It's a stone wall."); },
         take: defaults.no_take,
+        open: function() { $(this).trigger("default"); },
         close: function() { dialog("The wall is closed."); },
         use: defaults.wasting_time,
         hit: function() { $(this).trigger("default"); },
         leave: defaults.wasting_time,
         speak: defaults.no_speak,
-        opened: false
       },
       torch1: {
         "default": function() { $(this).trigger("look"); },
@@ -533,8 +536,8 @@ $(function() {
         use: function() {
           var $e = $(this);
           dialog("You moved the torch.", function() {
-            $e.addClass("used");
-            $stage.find(".door").addClass("open");
+            $e.addClass("used").data("obj")["class"] = "used";
+            $stage.find(".door").addClass("open").data("obj")["class"] = "open";
             dialog(["It's a hidden door.", "There is a spiral", "staircase leading down."]);
           });
         },
@@ -575,8 +578,8 @@ $(function() {
             dialog(["Hmm! It's too high for", "you to reach."]);
           }
           else {
-            $stage.find(".ledge").addClass("broken");
-            $stage.find(".rubble").addClass("visible");
+            $stage.find(".ledge").addClass("broken").data("obj")["class"] = "broken";
+            $stage.find(".rubble").addClass("visible").data("obj")["class"] = "visible";
             dialog(["The ledge wasn't strong",
               "enough to hold you.  You",
               "fall to the ground and",
@@ -593,6 +596,10 @@ $(function() {
         hit: defaults.nothing,
         leave: defaults.no_leave,
         speak: defaults.no_speak
+      },
+      door_s3: {
+        "default": function() { door($(this).addClass("open"), "s3"); },
+        open: function() { $(this).trigger("default"); }
       },
       move: [
         { door: "door_s3", s: "s3", x: 2, y: 4 },
@@ -743,7 +750,7 @@ $(function() {
         createMoveLocation(grid[i]);
       }
     };
-    $stage.empty().removeClass().addClass(s["class"] || "s" + stage);
+    $stage.empty().removeClass().addClass(s["class"] || "s" + stage).data("obj", s);
     $move_grid.empty();
     for (var v in s) {
       if (v === "move") {
