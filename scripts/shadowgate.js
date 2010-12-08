@@ -484,8 +484,8 @@ $(function() {
       door: {
         "default": function() {
           var $e = $(this);
-          if ($(this).hasClass("open")) {
-            door($(this), "s7");
+          if ($e.hasClass("open")) {
+            door($e, "s7");
           }
         },
         look: function() {
@@ -665,6 +665,62 @@ $(function() {
         "The stones in these", "walls were probably cut",
         "by the hands of enslaved", "mountain dwarves."
       ]
+    },
+    "7": {
+      chasm: {
+        look: function() {
+          dialog(["You hear moans coming", "from the bottom of the", "chasm."]);
+        },
+        move: function() {
+          dialog(["With a loud cry, you", "take the big plunge."], death);
+        }
+      },
+      stone_bridge: {
+        look: function() {
+          dialog(["Judging by the intricate", "workmanship, this bridge", "seems to be quite", "sturdy."]);
+        }
+      },
+      rope_bridge: {
+        look: function() {
+          dialog([
+            "This shabby bridge is",
+            "held together with",
+            "nothing but frayed ropes",
+            "and rotten planks.",
+            "The ropes are indeed in",
+            "bad condition."
+          ]);
+        },
+        move: function() {
+          dialog([
+            "As you reach the middle", "of the bridge, it", "collapses under your", "feet!",
+            "The bridge won't hold", "you. You can't cross", "unless you lose some", "weight!"
+          ], death);
+        }
+      },
+      door_s5: {
+        "default": function() { door($(this).addClass("open"), "s5"); },
+        look: function() { dialog("The door is opened."); },
+        open: function() { $(this).trigger("default"); }
+      },
+      left_door: {
+        "default": function() { door($(this).addClass("open"), "s7"); },
+        look: function() { dialog("It is very dark."); },
+        move: function() { $(this).trigger("default"); }
+      },
+      right_door: {
+        "default": function() { door($(this).addClass("open"), "s7"); },
+        look: function() { dialog("It is very dark."); },
+        move: function() { $(this).trigger("default"); }
+      },
+      first_dialog: ["You stand at the edge of", "a deep chasm. From the", "darkness below arise the",
+        "screams of the undead.", "This cave is hewn", "roughly in the chasm's", "wall."],
+      entrance_dialog: ["There are two bridges", "that span the chasm."],
+      move: [
+        { door: "door_s5", s: "s5", x: 0, y: 4 },
+        { door: "door_s8", s: "s8", x: 1, y: 0 },
+        { door: "door_s9", s: "s9", x: 3, y: 0 }
+      ]
     }
   };
 
@@ -732,7 +788,10 @@ $(function() {
 
   function stageSetup(stage) {
     stage = stage || $stage[0].className.match(/\d/g).join(",");
-    if (debug.hasOwnProperty("starting_screen")) { stage = debug.starting_screen; }
+    if (debug.hasOwnProperty("starting_screen")) {
+      stage = debug.starting_screen;
+      delete debug.starting_screen;
+    }
     var s = stages[stage],
         allowed_actions = [
           "default",

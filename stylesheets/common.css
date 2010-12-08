@@ -408,3 +408,36 @@ a#card_up, a#card_down { width: 21px; }
   height: 151px;
   background: transparent url("../images/6_door_e.gif") 0 0 no-repeat; }
 .s6 .open { background: transparent; }
+
+#stage.s7 { background: url("../images/7.gif"); }
+.s7 .chasm {
+  left: 51px;
+  top: 188px;
+  width: 224px;
+  height: 24px; }
+.s7 .door_s5 {
+  left: 0;
+  top: 84px;
+  width: 16px;
+  height: 211px; }
+.s7 .stone_bridge {
+  left: 66px;
+  top: 63px;
+  width: 69px;
+  height: 166px; }
+.s7 .rope_bridge {
+  left: 153px;
+  top: 79px;
+  width: 122px;
+  height: 148px;
+  background: url("../images/7_bridge.gif"); }
+.s7 .left_door {
+  left: 85px;
+  top: 40px;
+  width: 33px;
+  height: 39px; }
+.s7 .right_door {
+  left: 193px;
+  top: 44px;
+  width: 38px;
+  height: 35px; }
