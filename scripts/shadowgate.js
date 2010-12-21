@@ -704,13 +704,15 @@ $(function() {
         open: function() { $(this).trigger("default"); }
       },
       left_door: {
-        "default": function() { door($(this).addClass("open"), "s7"); },
+        "default": function() { door($(this).addClass("open"), "s8"); },
         look: function() { dialog("It is very dark."); },
+        open: function() { $(this).trigger("default"); },
         move: function() { $(this).trigger("default"); }
       },
       right_door: {
-        "default": function() { door($(this).addClass("open"), "s7"); },
+        "default": function() { door($(this).addClass("open"), "s9"); },
         look: function() { dialog("It is very dark."); },
+        open: function() { $(this).trigger("default"); },
         move: function() { $(this).trigger("default"); }
       },
       first_dialog: ["You stand at the edge of", "a deep chasm. From the", "darkness below arise the",
@@ -718,8 +720,63 @@ $(function() {
       entrance_dialog: ["There are two bridges", "that span the chasm."],
       move: [
         { door: "door_s5", s: "s5", x: 0, y: 4 },
-        { door: "door_s8", s: "s8", x: 1, y: 0 },
-        { door: "door_s9", s: "s9", x: 3, y: 0 }
+        { door: "left_door", s: "s8", x: 1, y: 0 },
+        { door: "right_door", s: "s9", x: 3, y: 0 }
+      ]
+    },
+    "8": {
+      door: {
+        "default": function() {
+          ($stage.find(".wraith").length) ?
+            dialog(["You're afraid to get", "near it."]) :
+            door($(this), "s7");
+        },
+        look: function() {
+          dialog(["It's a heavy wooden door", "with iron hinges."]);
+        },
+        move: function() { $(this).trigger("default"); },
+        open: function() { $(this).trigger("default"); }
+      },
+      cloak: {
+        "default": function() {
+          dialog(["This heavy cloak", "contains no frivolous", "adornments, such as", "pockets or a hood."]);
+        },
+        look: function() { $(this).trigger("default"); },
+        take: function() {
+          if ($stage.find(".wraith").length) {
+            dialog(["You're afraid to get", "near it."]);
+          }
+          else {
+            
+          }
+        },
+        open: defaults.no_open,
+        close: defaults.nothing,
+        use: defaults.no_use,
+        hit: defaults.nothing,
+        leave: defaults.no_leave,
+        speak: defaults.no_speak
+      },
+      wraith: {
+        "default": function() {
+          dialog(["It's a shadow wraith, a", "hideous spectre, who", "eternally walks the line",
+            "between life and death."]);
+        },
+        look: function() { $(this).trigger("default"); },
+        take: defaults.no_take,
+        open: defaults.no_open,
+        close: defaults.nothing,
+        use: function() { dialog(["You're afraid to get", "near it."]); },
+        hit: function() { $(this).trigger("use"); },
+        leave: defaults.no_leave,
+        speak: function() { dialog(["It doesn't seem to", "understand what you say."]); }
+      },
+      torch_l: new Torch(),
+      torch_r: new Torch(),
+      hatch: {},
+      door_s7: new OpenDoor("s7"),
+      move: [
+        { door: "door_s7", s: "s7", x: 2, y: 4 }
       ]
     }
   };
@@ -764,26 +821,34 @@ $(function() {
   load_indicator();
   $interface.find("a#save").click(saveGame);
 
+  function OpenDoor(door_id) {
+    OpenDoor.prototype["default"] = function() { door($(this).addClass("open"), door_id); };
+    OpenDoor.prototype.look = function() { dialog("The door is opened."); };
+    OpenDoor.prototype.open = function() { $(this).trigger("default"); };
+    if (!(this instanceof OpenDoor)) { return new OpenDoor(); }
+  }
+
   function Interactive() {
-    return {
-      nothing: function() { dialog("Nothing happened."); },
-      take: function() { dialog("You can't take it!"); },
-      open: function() { dialog("It won't open!"); },
-      use: function() { dialog(["You can't use what you", "didn't take."]); },
-      leave: function() { dialog(["You can't drop what you", "didn't take."]); },
-      speak: function() { dialog(["What you expected hasn't", "happened"]); }
-    };
+    Interactive.prototype.nothing = function() { dialog("Nothing happened."); };
+    Interactive.prototype.take = function() { dialog("You can't take it!"); };
+    Interactive.prototype.open = function() { dialog("It won't open!"); };
+    Interactive.prototype.use = function() { dialog(["You can't use what you", "didn't take."]); };
+    Interactive.prototype.leave = function() { dialog(["You can't drop what you", "didn't take."]); };
+    Interactive.prototype.speak = function() { dialog(["What you expected hasn't", "happened"]); };
+    Interactive.prototype["default"] = function() { $(this).trigger("look"); };
+    if (!(this instanceof Interactive)) { return new Interactive(); }
   }
   function Torch() {
-    var t = new Interactive();
-    t.look = function() { dialog([
-      "It's a torch. An oil",
-      "soaked rag is wrapped",
-      "around it."]);
+    if (!(this instanceof Torch)) { return new Torch(); }
+    Torch.prototype = new Interactive();
+    Torch.prototype.look = function() {
+      dialog([
+        "It's a torch. An oil",
+        "soaked rag is wrapped",
+        "around it."]);
     };
-    t.take = function() { torch($(this)); };
-    t.close = t.hit = t.nothing;
-    return t;
+    Torch.prototype.take = function() { torch($(this)); };
+    Torch.prototype.close = Torch.prototype.hit = Torch.prototype.nothing;
   }
 
   function stageSetup(stage) {
@@ -850,7 +915,7 @@ $(function() {
         top: data.y * 21
       }
     }).click({marker: data}, function(e) {
-      $stage.find("." + e.data.marker.door).trigger("open");
+      $stage.find("." + e.data.marker.door).trigger(action);
       return false;
     }).appendTo($move_grid);
   }
